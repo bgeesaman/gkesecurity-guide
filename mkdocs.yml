@@ -20,7 +20,7 @@ nav:
   - Cluster Configuration: cluster_configuration.md
   - Cluster Lifecycle: cluster_lifecycle.md
   - Cluster Observability: cluster_observability.md
-  - Cluster Add-ons: cluster-addons.md
+  - Cluster Add-ons: cluster_addons.md
   - Workload Configuration: workload_configuration.md
   - Container Images: container_images.md
   - Audit and Compliance: audit_and_compliance.md
