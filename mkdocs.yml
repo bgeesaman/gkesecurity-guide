@@ -2,6 +2,7 @@ site_name: The Unofficial GKE Security Guide
 repo_name: 'bgeesaman/gkesecurity-guide'
 repo_url: 'https://github.com/bgeesaman/gkesecurity-guide'
 dev_addr: 0.0.0.0:8080
+
 theme:
   name: 'material'
   palette:
@@ -11,8 +12,19 @@ theme:
     icon: 'cloud'
   feature:
     tabs: false
+
 nav:
-  - Index Page: index.md
+  - Introduction: index.md
+  - Cloud Environment: cloud_environment.md
+  - Project Organization: project_organization.md
+  - Cluster Configuration: cluster_configuration.md
+  - Cluster Lifecycle: cluster_lifecycle.md
+  - Cluster Observability: cluster_observability.md
+  - Cluster Add-ons: cluster-addons.md
+  - Workload Configuration: workload_configuration.md
+  - Container Images: container_images.md
+  - Audit and Compliance: audit_and_compliance.md
+  - Detection and Response: detection_and_response.md
 markdown_extensions:
   - markdown.extensions.admonition
   - markdown.extensions.codehilite:
@@ -42,11 +54,11 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+
 extra:
   search:
     language: 'en'
     tokenizer: '[\s\-\.]+'
-extra:
   social:
     - type: github-alt
       link: https://github.com/bgeesaman
