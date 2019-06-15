@@ -28,7 +28,7 @@ serve:
 publish:
 	@echo "Publishing to GH-Pages"
 	@$(PUBLISH)
-	@git stash clear
+	@git stash && git stash clear
 shell:
 	@echo "Running a shell inside the container"
 	@$(DEBUGSHELL)
