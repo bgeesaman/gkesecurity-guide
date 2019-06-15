@@ -1,0 +1,56 @@
+site_name: The Unofficial GKE Security Guide
+repo_name: 'bgeesaman/gkesecurity-guide'
+repo_url: 'https://github.com/bgeesaman/gkesecurity-guide'
+dev_addr: 0.0.0.0:8080
+theme:
+  name: 'material'
+  palette:
+    primary: 'blue'
+    accent: 'blue'
+  logo:
+    icon: 'cloud'
+  feature:
+    tabs: false
+nav:
+  - Index Page: index.md
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+extra:
+  search:
+    language: 'en'
+    tokenizer: '[\s\-\.]+'
+extra:
+  social:
+    - type: github-alt
+      link: https://github.com/bgeesaman
+    - type: twitter
+      link: https://twitter.com/bradgeesaman
+    - type: linkedin
+      link: https://linkedin.com/in/bradgeesaman
