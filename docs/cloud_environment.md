@@ -1,6 +1,6 @@
 # Cloud Environment
 
-## Identity and IAM Hierarchy (TODO)
+## Identity and IAM Hierarchy
 
 At the foundation of your GCP Organization is a relationship with your trusted identity provider.  Commonly, this is a Gsuite domain or a Cloud Identity installation.  It's the basis of trust for how users and groups are managed throughout the GCP environments.  It's where you audit logins/logouts, enforce MFA and session duration, and more.
 
@@ -35,7 +35,7 @@ Things get even more interesting when you consider a group of Projects organized
 * [Cloud Identity Overview](https://cloud.google.com/identity/docs/concepts/overview)
 * [Cloud IAM Overview](https://cloud.google.com/iam/docs/overview)
 
-## Organization, Folder, and Project Structure
+## Organization, Folder, and Project Structure (TODO)
 
 Why it's so important early, dictates IAM permission granularity/simplicity, project is the IAM boundary for most permissions types.  Why moving folders/projects isn't straightforward.
 
