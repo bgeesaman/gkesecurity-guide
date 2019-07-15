@@ -105,9 +105,9 @@ If the prospect of assigning a `/16` per cluster has the network team of a large
 ### Best Practices
 
 * **Do not overlap CIDRs** - In almost every GCP `organization`, there exists a need to route to each GKE cluster and between clusters, and the cleanest way to do this with the least amount of engineering is to plan ahead and avoid CIDR overlap.  The only known exception is the GKE Service CIDR range.
-* **Use VPC Aliasing** - Currently, this is in the process of becoming the default option.  Enabling IP aliasing means that the GKE CNI plugin places Pods IPs on an "alias" interface of the underlying node.  This reduces latency by reducing network "hops" as the GCP Network infrastructure is used to route Pod-to-Pod traffic and LoadBalancer-to-Pod traffic.
+* **Use VPC Aliasing** - Currently, this is in the process of becoming the default option.  Enabling IP aliasing means that the GKE CNI plugin places Pods IPs on an "alias" interface of the underlying node.  This reduces latency by reducing network "hops" as the GCP Network infrastructure is used to route Pod-to-Pod traffic and LoadBalancer-to-Pod traffic instead of always involving `kube-proxy`.
 * **Consider Using Flexible Pod CIDR** - Especially on larger cluster sizes, this can greatly reduce "CIDR waste" and allow for future scaling and expansion of node pools with half or more of the original IP space needed with the default configuration.
-* **Take Note of Quotas/Limits** - When it comes to Shared VPCs, a recent quota/limit on the number of secondary address ranges per VPC went from 5 to 30.  This had an effect of limiting the total number of GKE clusters that could be deployed in a Shared VPC as the quotas/limits for the networking components are shared by the "host" project.
+* **Take Note of Quotas/Limits** - When it comes to Shared VPCs, a recent quota/limit on the number of secondary address ranges per VPC went from 5 to 30.  This had an effect of limiting the total number of GKE clusters that could be deployed in a Shared VPC as the quotas/limits for the networking components are shared by the "host" project.  Large organizations with 1000s of instances will want to be aware of the 15,000 VM per Network when combining large `projects` with large instance counts and GKE node counts.
 
 ### Resources
 
@@ -115,5 +115,5 @@ If the prospect of assigning a `/16` per cluster has the network team of a large
 * [GKE with Shared VPC](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-shared-vpc)
 * [GKE Networking Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/network-overview)
 * [GKE Alias IP Cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips#cluster_sizing)
-* [Shared VPC Quotas and Limits](VPC quotas/limits)
+* [Shared VPC Quotas and Limits](https://cloud.google.com/vpc/docs/quota#per_project)
 * [GKE Flexible Pod CIDR](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
