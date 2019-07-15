@@ -77,18 +77,43 @@ However, depending on your organization's needs, this hierarchy might not be ide
 * [Organization Access Policy](https://cloud.google.com/resource-manager/docs/access-control-org)
 * [Forseti Security](https://forsetisecurity.org/)
 
-## Cluster Networking (TODO)
+## Cluster Networking
 
 VPC (shared vs peering based on administration model)
+Once the GCP `organization`, `folder`, and `project` structure is organized according to the desired hierarchy, the next step is to structure the networking and IP address management to support your use case.
+
+As a small organization, it may make sense to have a single `project` with a single GKE cluster to start.  Inside this project, a VPC network is created, a few subnets are declared, and a GKE cluster is deployed.  If another cluster is needed for a completely separate purpose, another `project` can be created (with another VPC and set of subnets).  If these clusters need to communicate privately and avoid egress network charges, a common choice is to use VPC peering which makes a two-way routing path between each VPC (`A <-> B`).  When the third VPC/Cluster comes along, another VPC/Subnet/Cluster is needed.  Now, to VPC peer all three VPCs, three total VPC peering connections are needed.  `A <-> B`, `B <-> C`, and `A <-> C`.  When the fourth cluster is desired, a total of six VPC peering configurations are needed.  This becomes difficult to manage correctly and adds to ongoing maintenance costs for troubleshooting and configuration for each additional VPC.
+
+The most common solution to centralizing the management and configuration of VPC networks across multiple projects is the `Shared VPC` model.  One `project` is defined as the "host" project (where the VPC and Subnets are managed) and other `projects` are defined as "service" projects (where the services/apps/GKE clusters are deployed).  The "service" projects no longer have VPCs and Subnets in them and instead are only allowed to "use" those VPCs/subnets defined in the "host" project.  This has a few advantages for security-conscious organizations:
+
+1. Using IAM permissions, it's now possible to granularly assign the ability to create projects, attach them to the Shared VPC, create/manage subnets and firewall rules, and the ability to "use" or "attach to" the subnets to different users/groups in each of the "service" projects.
+1. With centralized control of the networking components, it's easier to manage IP address space, avoid CIDR overlap problems, and maintain consistent and correct configurations.
+1. Owners of resources in the various "service" projects can simply leverage the networking infrastructure provided to them.  In practice, this helps curtail "project-network" sprawl which is very hard to reign in after the fact.
+
+With the `organization` hierarchy set to have one project for each environment type to separate IAM permissions, a best practice GKE deployment has a GKE cluster for each environment type in its respective project.  The natural tendency is to make a Shared VPC for a service offering (e.g. `b2b-crm`) and attach the three `projects` for `b2b-crm-dev`, `b2b-crm-test`, and `b2b-crm-prod` to it.  From an operational perspective, this might facilitate simpler environment-to-environment communications to move data between clusters or share hybrid/VPN connectivity needs.  However, from a security perspective, this is akin to running `dev`, `test`, and `prod` right next to each other on the same shared network.  This can unintentionally increase the "blast radius" of an attack as a compromised `test` cluster would have more possible avenues to pivot and communicate directly with the `prod` cluster, for instance.  While it's possible to do this with sufficient security controls in place, the chance for misconfiguration is much higher.
+
+If the entire point of a Shared VPC is to reduce the number of VPCs to manage, how does that work when each environment and cluster shouldn't share a VPC?  One method is to create a Shared VPC for related `dev` `projects` and clusters, one for `test` `projects`, and one for `prod` `projects` and clusters that need to communicate with each other.  For instance, a `project` holding GCE instances sharing a VPC with a `project` running a GKE cluster as a part of the same total application "stack".
+
+GKE is known for using a large amount of private RFC 1918 IP address space, and for proper operation of routing and interconnectivity features, CIDR ranges should not be reused or overlap.
+
+* **Node IPs** - Each GKE "node" (GCE instance) needs one IP for administration and control plane communications, and it uses the "primary" range in the subnet declared.  If the cluster isn't to grow beyond 250 nodes, this can be a `/24`.  For ~1000 nodes, a `/22` is needed.  This CIDR range should be unique and not overlap or be reused anywhere.
+* **Pod IPs** - By default, each node can run a max of 110 Pods.  Each pod needs an IP that is unique, and so GKE slices up `/24` CIDR ranges from the "secondary" subnet range to assign to each node.  A 250 node cluster will use 250 x `/24` CIDR blocks.  In this case, a `/16` is needed to handle this cluster (250 x 256 = 64K, closest is 2^8 = 65535). A ~1000 node cluster will need a `/14` all to itself (1000 x 256 = 256K, closest is 2^18 = 262K).
+* **Cluster/Service IPs** - The only CIDR range that can be reused is the Service CIDR.  This is because it is never meant to be routed outside the GKE cluster.  It's what is assigned to `ClusterIP` `Service` objects in Kubernetes which can be used to map friendly, internal DNS names to Pod IPs matching certain labels.  A range of `/20` provides just over 4,090 possible services in a single cluster.  This should be more than sufficient for clusters below 500 nodes.
+
+If the prospect of assigning a `/16` per cluster has the network team of a large organization nervous, consider using "Flexible Pod CIDR".  In many situations, the resources needed by Pods and the size of the GKE Nodes makes the practical limit of pods per node far fewer than the max of 110.  If the workloads for a cluster are such that no more than 50-60 pods will ever run on a node, the node will only use a max of half of the `/24` CIDR assigned to it.  The "wasted" 128 addresses per node can add up quickly.  When creating a GKE Node Pool, specifying a `MaxPodsPerNode` of `64` or fewer will trigger GKE to assign a `/25` from the secondary range instead of a `/24`.  The reason for not going to a `/26` is because of the natural lifecycle of a Pod IP assignment during a deployment is that greater than 64 IPs might be in use for short periods as some pods are starting while others are still terminating.
 
 ### Best Practices
 
-* Do not overlap CIDRs
-* Use VPC Aliasing
-* Watch limits/quotas
+* **Do not overlap CIDRs** - In almost every GCP `organization`, there exists a need to route to each GKE cluster and between clusters, and the cleanest way to do this with the least amount of engineering is to plan ahead and avoid CIDR overlap.  The only known exception is the GKE Service CIDR range.
+* **Use VPC Aliasing** - Currently, this is in the process of becoming the default option.  Enabling IP aliasing means that the GKE CNI plugin places Pods IPs on an "alias" interface of the underlying node.  This reduces latency by reducing network "hops" as the GCP Network infrastructure is used to route Pod-to-Pod traffic and LoadBalancer-to-Pod traffic.
+* **Consider Using Flexible Pod CIDR** - Especially on larger cluster sizes, this can greatly reduce "CIDR waste" and allow for future scaling and expansion of node pools with half or more of the original IP space needed with the default configuration.
+* **Take Note of Quotas/Limits** - When it comes to Shared VPCs, a recent quota/limit on the number of secondary address ranges per VPC went from 5 to 30.  This had an effect of limiting the total number of GKE clusters that could be deployed in a Shared VPC as the quotas/limits for the networking components are shared by the "host" project.
 
 ### Resources
 
-* Official GCP docs (shared vpc, vpc peering)
-* VPC quotas/limits
-* GKE VPC aliasing/subnetting
+* [Shared VPC Overview](https://cloud.google.com/vpc/docs/shared-vpc)
+* [GKE with Shared VPC](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-shared-vpc)
+* [GKE Networking Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/network-overview)
+* [GKE Alias IP Cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips#cluster_sizing)
+* [Shared VPC Quotas and Limits](VPC quotas/limits)
+* [GKE Flexible Pod CIDR](https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr)
