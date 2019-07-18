@@ -91,8 +91,7 @@
 <li></li>
 </ul>
 <h2 id="project-quotas">Project Quotas<a class="headerlink" href="#project-quotas" title="Permanent link">&para;</a></h2>
-<p>CPU/RAM/GPU/Disk, Subnets, Instances per mig
-GCP <code>projects</code> have quotas or limits on how many resources are available for potential use.  This doesn't mean that there is available capacity to fulfill the request, and on rare occasions, a particular zone might not be able to provide another GKE worker right away when your cluster workloads need more capacity and node-pool autoscaling kicks in.</p>
+<p>GCP <code>projects</code> have quotas or limits on how many resources are available for potential use.  This doesn't mean that there is available capacity to fulfill the request, and on rare occasions, a particular zone might not be able to provide another GKE worker right away when your cluster workloads need more capacity and node-pool autoscaling kicks in.</p>
 <p>GKE uses several GCE related quotas like <code>cpu</code>, <code>memory</code>, <code>disk</code>, and <code>gpu</code> of a particular type, but it also uses lesser known quotas like "Number of secondary ranges per VPC".  The resource related quotas are per region and sometimes per zone, so it's important to monitor your quota usage to avoid quota-capped resource exhaustion scenarios from negatively affecting your application's performance during a scale-up event or from preventing certain types of upgrade scenarios.</p>
 <h3 id="best-practices_2">Best Practices<a class="headerlink" href="#best-practices_2" title="Permanent link">&para;</a></h3>
 <ul>
