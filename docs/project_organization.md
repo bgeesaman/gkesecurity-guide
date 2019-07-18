@@ -76,7 +76,6 @@ K8s API vs Pod Network vs Ingress vs Node Resource isolation
 
 ## Project Quotas
 
-CPU/RAM/GPU/Disk, Subnets, Instances per mig
 GCP `projects` have quotas or limits on how many resources are available for potential use.  This doesn't mean that there is available capacity to fulfill the request, and on rare occasions, a particular zone might not be able to provide another GKE worker right away when your cluster workloads need more capacity and node-pool autoscaling kicks in.
 
 GKE uses several GCE related quotas like `cpu`, `memory`, `disk`, and `gpu` of a particular type, but it also uses lesser known quotas like "Number of secondary ranges per VPC".  The resource related quotas are per region and sometimes per zone, so it's important to monitor your quota usage to avoid quota-capped resource exhaustion scenarios from negatively affecting your application's performance during a scale-up event or from preventing certain types of upgrade scenarios.
