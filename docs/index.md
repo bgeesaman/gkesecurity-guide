@@ -38,6 +38,22 @@ For first time Kubernetes operators, it's a fantastic idea to follow [Kubernetes
 
 In many cases, this is best done by working with a managed Kubernetes service like [GKE](https://cloud.google.com/kubernetes-engine/).  Successful Kubernetes cluster deployments require solid execution in wide range of areas, and it's impossible to be execellent in all of them at once.  From a business standpoint, you want your teams working on the problems that matter to your organization and to leave the boring operational work to the cloud service provider.  Kubernetes version upgrades, security patches, operating system maintenance, logging and monitoring infrastructure, and more are all things you want to be building "on top of" and not having to "build" yourself first.  Refer to the [benefits of GKE](TODO) for further reading.
 
+## Kubernetes Security Maturity
+
+Throughout this guide, there will be dozens of security decisions and configuration tasks that you will be faced with prioritizing and implementing.  It's important to have some higher level structure and frame of reference for which items are required early or later on in your journey to Kubernetes security maturity.  [Kubernetes for Enterprise Security Requirements](https://www.youtube.com/watch?v=X-rSMkKqyt4) really helps visually explain the progression path well.
+
+Summarizing the key areas from this talk:
+
+* Infrastructure Security - Does the surrounding environment and Kubernetes cluster provide a solid foundation for running workloads securely?
+* Software Supply Chain - Are the container images running in the cluster built from trusted sources and free of vulnerabilities?
+* Container Runtime Security - Are there capabilities in place to monitor what is happening inside the containers?
+
+Additionally:
+
+* Security Observability and Response - Are there capabilities for knowing when a security incident occurs and processes in place to respond and remediate?
+
+As you progress through this guide, each of the topic areas should map back to one or more of these key areas and help align your decision along these lines.
+
 ## Contributing
 
 This guide is a living document, and contributions in the form of issues and PRs are welcomed.  If you are considering writing new content, please open an issue outlining what you'd like to write about, where it might fit in, and other details.
