@@ -18,7 +18,7 @@ Since there is no additional charge for running a "regional" GKE `cluster` with 
 ### Best Practices
 
 * **Use Regional Clusters** - Unless you have specific needs that force you to use "zonal" `cluster`, using "regional" `clusters` offers the best redundancy and availablility for a minor increase in network traffic costs for the majority of use cases.
-* **Offer a Regional Persisten Disk `StorageClass`** - Allows `pods` to attach and access persistent disk volumes regardless of where they are scheduled inside the cluster.  This prevents a `zone` failure from allowing a `pod` to be scheduled and mount that disk on a `node` in another `zone`.
+* **Offer a Regional Persisten Disk `StorageClass`** - Allows `pods` to attach and access persistent disk volumes regardless of where they are scheduled inside the cluster.  This prevents a `zone` failure from allowing a `pod` to be rescheduled and mount that disk on a `node` in another `zone`.
 
 ### Resources
 
@@ -26,57 +26,11 @@ Since there is no additional charge for running a "regional" GKE `cluster` with 
 
 ## IAM and RBAC (TODO)
 
-asdf
-
-### Best Practices
-
-* asdf
-* asdf
-
-### Resources
-
-* Official GKE Docs
-* asdf
 
 ## Cluster Access
 
-asdf
-
-### Best Practices
-
-* asdf
-* asdf
-
-### Resources
-
-* Official GKE Docs
-* asdf
 
 ## Cluster Settings
 
-asdf
-
-### Best Practices
-
-* asdf
-* asdf
-
-### Resources
-
-* Official GKE Docs
-* asdf
 
 ## Node Pool Settings
-
-asdf
-
-### Best Practices
-
-* asdf
-* asdf
-
-### Resources
-
-* Official GKE Docs
-* asdf
-
