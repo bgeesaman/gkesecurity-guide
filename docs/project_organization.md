@@ -57,22 +57,32 @@ Using the [Hipster Shop](https://github.com/GoogleCloudPlatform/microservices-de
 * [Hipster Shop](https://github.com/GoogleCloudPlatform/microservices-demo)
 * [Terraform](https://terraform.io)
 
-## Separating Tenants (TODO)
+## Separating Tenants
 
-Define hard and soft tenancy.
+The previous section covers the "cluster per project" approaches, and this section attempts to guide you through the "workloads per cluster" decisions. Two important definitions to cover first are [Hard and Soft tenancy](https://docs.google.com/document/d/1PjlsBmZw6Jb3XZeVyZ0781m6PV7-nSUvQrwObkvz7jg/edit) by Jessie Frazelle:
 
-Per cluster or per namespace.
+* **Soft multi-tenancy** - multiple users _within the same organization_ in the same cluster. Soft multi-tenancy could have possible bad actors such as people leaving the company, etc. Users are not thought to be actively malicious since they are within the same organization, but potential for accidents or "evil leaving employees." A large focus of soft multi-tenancy is to prevent accidents.
+* **Hard multi-tenancy** - multiple users, from various places, in the same cluster.  Hard multi-tenancy means that anyone on the cluster is thought to be potentially malicious and therefore should not have access to any other tenants resources.
 
-K8s API vs Pod Network vs Ingress vs Node Resource isolation
+From experience, building and operating a cluster with a hard-tenancy use case in mind is very difficult.  The tools and capabilties are improving in this area, but it requires extreme attention to detail, careful planning, 100% visibility into activity, and near-hyper active monitoring.  For these reasons, your journey with Kubernetes and GKE should first solve for the soft-tenancy use case.  The understanding and lessons learned will overlap nearly 100% if you decide to go for hard-tenancy and will _absolutely_ give you the proper frame of reference to decide if your organization can tackle the added challenges.
 
-### Best Practices
+!!! warning "There is no such thing as a "single-tenant" cluster"
+    When it comes to workloads, there are always a minimum of two classes: "System" and "User" workloads.  Workloads that are responsible for the operation of the cluster (CNI, log export, metrics export, etc) should be isolated from workloads that run actual applications and vice versa.
 
-* Hard tenancy - separate projects/clusters
-* Soft tenancy - shared projects/clusters
+In Kubernetes, the default separation between these workload types is likely not sufficient for production needs.  System components run on the same physical resources as user workloads, share a common administrative mechanism, share a common layer 3 network with no default access controls, and often run with higher privileges.  Even in GKE, you will want to take steps to address these concerns.
+
+1. **API Isolation** - Using separate Kubernetes `namespaces` to segment workloads for different purposes when it comes to how those resources interact with the Kubernetes API only.  Service accounts per namespace tied to granular RBAC policies are the primary approach.
+1. **Network Isolation** - Using Kubernetes `namespaces` as an anchor point, defining which pods are allowed to talk with each other explicitly via `NetworkPolicy` objects is the primary approach.  For instance, preventing all ingress traffic from non-`kube-system` namespaces with the exception of `udp/53` for `kube-dns`.
+1. **Privilege Isolation** - Leveraging well-formed containers running as non-privileged users in combination with `PodSecurityPolicies` to prevent user workloads from being able to access sensitive or privileged resources on the worker node and undermining the security of all workloads.
+1. **Resource Isolation** - Using features like `ResourceQuotas` to cap overal cpu/memory/persistent disk resource consumption, resources `requests` and `limits` to ensure `pods` are given the resources they need without overcrowding other workloads, and separating security or performance sensitive workloads on separate `Node Pools`. 
+
+Whether you are a single developer running a couple microservices in one cluster or a large organization with many teams sharing large clusters, these concerns are important and should not be overlooked.  The remainder of this guide will attempt to show you how to implement these features in combination and give you confidence in the decisions you make for your use case.
 
 ### Resources
 
-* 
+* [Hard Multi-Tenancy in Kubernetes](https://blog.jessfraz.com/post/hard-multi-tenancy-in-kubernetes/)
+* [Multi-Tenancy Design Space](https://docs.google.com/document/d/1PjlsBmZw6Jb3XZeVyZ0781m6PV7-nSUvQrwObkvz7jg/edit)
+* [GKE Cluster Multi-Tenancy](https://cloud.google.com/kubernetes-engine/docs/concepts/multitenancy-overview)
 
 ## Project Quotas
 
