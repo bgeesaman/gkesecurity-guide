@@ -5,11 +5,11 @@ IMAGEREPO=bgeesaman/$(IMAGENAME)
 WORKDIR=/data
 SERVEPORT=8080
 
-DOCKER=docker build -t $(IMAGEREPO):latest .
-COMMAND=docker run --rm -v $(PWD):$(WORKDIR)
+DOCKER=podman build -t $(IMAGEREPO):latest .
+COMMAND=podman run --rm -v $(pwd):$(WORKDIR)
 BUILD=$(COMMAND) $(IMAGEREPO):latest build
-SERVE=$(COMMAND) -p $(SERVEPORT):$(SERVEPORT) $(IMAGEREPO):latest serve
-PUBLISH=$(COMMAND) -v $(HOME)/.gitconfig:/root/.gitconfig:ro -v $(HOME)/.ssh:/root/.ssh:ro -it $(IMAGEREPO):latest gh-deploy --clean
+SERVE=$(COMMAND) --privileged -p $(SERVEPORT):$(SERVEPORT) $(IMAGEREPO):latest serve
+PUBLISH=$(COMMAND) --privileged -v $(HOME)/.gitconfig:/root/.gitconfig:ro -v $(HOME)/.ssh:/root/.ssh:ro -it $(IMAGEREPO):latest gh-deploy --clean
 DEBUGSHELL=$(COMMAND) -v $(HOME)/.gitconfig:/root/.gitconfig:ro -v $(HOME)/.ssh:/root/.ssh:ro -it --entrypoint "sh" $(IMAGEREPO):latest
 
 dockerbuild:
