@@ -99,6 +99,12 @@ There are a couple key points to understand about how Cloud IAM and Kubernetes R
 
 ## Cluster Access
 
+Private vs Public CP and Nodes
+
+SSHing to nodes
+
+IAP and Bastion
+
 
 ## Cluster Settings
 
