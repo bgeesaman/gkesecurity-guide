@@ -6,7 +6,7 @@ WORKDIR=/data
 SERVEPORT=8080
 
 DOCKER=podman build -t $(IMAGEREPO):latest .
-COMMAND=podman run --rm -v $(pwd):$(WORKDIR)
+COMMAND=podman run --rm -v `pwd`:$(WORKDIR)
 BUILD=$(COMMAND) $(IMAGEREPO):latest build
 SERVE=$(COMMAND) --privileged -p $(SERVEPORT):$(SERVEPORT) $(IMAGEREPO):latest serve
 PUBLISH=$(COMMAND) --privileged -v $(HOME)/.gitconfig:/root/.gitconfig:ro -v $(HOME)/.ssh:/root/.ssh:ro -it $(IMAGEREPO):latest gh-deploy --clean
