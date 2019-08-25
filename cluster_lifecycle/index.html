@@ -304,9 +304,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#upgrades" title="Upgrades" class="md-nav__link">
-    Upgrades
+  <a href="#upgrades-and-security-fixes" title="Upgrades and Security Fixes" class="md-nav__link">
+    Upgrades and Security Fixes
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#control-plane-upgrades" title="Control Plane Upgrades" class="md-nav__link">
+    Control Plane Upgrades
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-pool-upgrades" title="Node Pool Upgrades" class="md-nav__link">
+    Node Pool Upgrades
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-bulletins" title="Security Bulletins" class="md-nav__link">
+    Security Bulletins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" title="Resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -315,19 +349,18 @@
     Scaling
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-bulletins-and-patching" title="Security Bulletins and Patching" class="md-nav__link">
-    Security Bulletins and Patching
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resources_1" title="Resources" class="md-nav__link">
+    Resources
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#maintenance-windows" title="Maintenance Windows" class="md-nav__link">
-    Maintenance Windows
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -442,9 +475,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#upgrades" title="Upgrades" class="md-nav__link">
-    Upgrades
+  <a href="#upgrades-and-security-fixes" title="Upgrades and Security Fixes" class="md-nav__link">
+    Upgrades and Security Fixes
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#control-plane-upgrades" title="Control Plane Upgrades" class="md-nav__link">
+    Control Plane Upgrades
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-pool-upgrades" title="Node Pool Upgrades" class="md-nav__link">
+    Node Pool Upgrades
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-bulletins" title="Security Bulletins" class="md-nav__link">
+    Security Bulletins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" title="Resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -453,19 +520,18 @@
     Scaling
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-bulletins-and-patching" title="Security Bulletins and Patching" class="md-nav__link">
-    Security Bulletins and Patching
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resources_1" title="Resources" class="md-nav__link">
+    Resources
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#maintenance-windows" title="Maintenance Windows" class="md-nav__link">
-    Maintenance Windows
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -490,10 +556,68 @@
                 
                 <h1 id="cluster-lifecycle">Cluster Lifecycle<a class="headerlink" href="#cluster-lifecycle" title="Permanent link">&para;</a></h1>
 <h2 id="infrastructure-as-code">Infrastructure as Code<a class="headerlink" href="#infrastructure-as-code" title="Permanent link">&para;</a></h2>
-<h2 id="upgrades">Upgrades<a class="headerlink" href="#upgrades" title="Permanent link">&para;</a></h2>
+<p>Documented Terraform example</p>
+<h2 id="upgrades-and-security-fixes">Upgrades and Security Fixes<a class="headerlink" href="#upgrades-and-security-fixes" title="Permanent link">&para;</a></h2>
+<h3 id="control-plane-upgrades">Control Plane Upgrades<a class="headerlink" href="#control-plane-upgrades" title="Permanent link">&para;</a></h3>
+<p>One of the most important problems that GKE helps solve is maintaining the control plane components for you.  Using <code>gcloud</code> or the UI console, upgrading the control plane version is a single API call.  There are a few important concepts to understand with this feature:</p>
+<ul>
+<li><strong>The version of the control plane can and should be kept updated.</strong> - GKE supports the current "Generally Available" (GA) GKE version back to two older minor revisions.  For instance, if the GA version is <code>1.13.7-gke19</code>, then <code>1.11.x</code> and <code>1.12.x</code> are supported.</li>
+<li><strong>GKE versions tend to trail Kubernetes OSS slightly.</strong> - Kubernetes OSS releases a minor revision approximately every 90-120 days, and GKE is quick to offer "Alpha" releases with those newest versions, but it may take some time to graduate to "GA" in GKE.</li>
+<li>
+<p><strong>Control Plane upgrades of Zonal clusters incurs a few minutes of downtime.</strong> - Upgrading to a newer GKE version causes each control plane instance to be recreated in-place. On <code>zonal</code> clusters, there is a few minutes where that single instance is unavailable while it is being recreated.  The data in <code>etcd</code> is kept as-is and all workloads that are running on the <code>node pools</code> remain in place.  However, access to the API with <code>kubectl</code> will be temporarily halted.</p>
+<p>Regional clusters perform a "rolling upgrade" approach to upgrading the three control plane instances, and so the upgrade happens one instance at a time.  This leaves the control plane available on the other instances and should incur no noticable downtime.</p>
+<p>For the sake of a highly-available control plane and the bonus that is no additional cost, it's recommended to run <code>regional</code> clusters.  If inter-regional traffic costs are a concern, use the <code>node locations</code> setting to use a single <code>zone</code> but still keep the <code>regional</code> control plane.</p>
+</li>
+</ul>
+<h3 id="node-pool-upgrades">Node Pool Upgrades<a class="headerlink" href="#node-pool-upgrades" title="Permanent link">&para;</a></h3>
+<p>Upgrades of <code>node pools</code> are handled per-<code>node pool</code>, and this gives the operator a lot of control over the behavior.  If <code>auto-upgrades</code> are enabled, the <code>node pools</code> will be scheduled for "rolling upgrade" style upgrades during the configured <code>maintenance window</code> time block.  While it's possible to have <code>node pools</code> trail the control plane version by two minor revisions, it's best to not trail more than one.</p>
+<p>As <code>node pools</code> are where workloads are running, a few points are important to understand:</p>
+<ul>
+<li><strong>Node Pools are resource boundaries</strong> - If certain workloads are resource-intensive or prone to over-consuming resources in large bursts, it may make sense to dedicate a <code>node pool</code> to them to reduce the potential for negatively affecting the performance and availability of other workloads.</li>
+<li><strong>Each Node Pool adds operational maintenance overhead</strong> - Quite simply, each <code>node pool</code> adds more work to the operations team.  Either to ensure is automatically upgraded or to perform the upgrades manually if auto-upgrades are disabled.</li>
+<li>
+<p><strong>Separating workloads to different Node Pools can help support security goals</strong> - While not a perfect solution, ensuring that workloads handling certain sensitive data are scheduled on separate <code>node pools</code> (using <code>node taints</code> and <code>tolerations</code> on workloads) can help reduce the chance of compromising <code>secrets</code> in a container "escape-to-the-host" situation.</p>
+<p>For example, placing PCI-related workloads on a separate <code>node pool</code> from other non-PCI workloads means that a compromise of a non-PCI <code>pod</code> that allows access to the underlying <code>host</code> will be less likely to have access to <code>secrets</code> that the PCI workloads are using.</p>
+</li>
+</ul>
+<h3 id="security-bulletins">Security Bulletins<a class="headerlink" href="#security-bulletins" title="Permanent link">&para;</a></h3>
+<p>Another benefit of a managed service like GKE is the reduced operational security burden on having to triage, test, and manage upgrades due to security issues.  The GKE Security Bulletins website and Atom/RSS feed provide a consolidated view of all things security-related in GKE.  It is strongly recommended that teams subscribe to and receive automatic updates from the feed as the information is timely and typically very clear on which actions GKE the service is taking and which actions are left to you.</p>
+<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#upgrading_the_master">GKE Cluster Upgrades</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#upgrading_nodes">GKE Node Pool Upgrades</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-upgrades">Automatic Node Upgrades</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/security-bulletins">GKE Security Bulletins</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/release-notes">GKE Release Notes</a></li>
+</ul>
 <h2 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h2>
-<h2 id="security-bulletins-and-patching">Security Bulletins and Patching<a class="headerlink" href="#security-bulletins-and-patching" title="Permanent link">&para;</a></h2>
-<h2 id="maintenance-windows">Maintenance Windows<a class="headerlink" href="#maintenance-windows" title="Permanent link">&para;</a></h2>
+<p>While scaling isn't a purely security-related topic, there are a few security and resource availability concerns with each of the common scaling patterns:</p>
+<ul>
+<li>
+<p><strong>Node Sizing</strong> - The resources available to GKE worker <code>nodes</code> are shared by all <code>pods</code> that are scheduled on them.  While there are solid <code>limits</code> on CPU and RAM usage, there are not strong resource isolation mechanisms (yet) for disk usage that lands on the <code>node</code>.  It is possible for a single <code>pod</code> to consume enough disk space and/or inodes and disrupt the health of the <code>node</code>.</p>
+<p>Depending on the workload profile you plan on running in the <code>cluster</code>, it might make sense to have more <code>nodes</code> of a smaller instance type with the faster <code>pd-ssd</code> <code>disk type</code> than fewer large instances sharing the slower <code>pd-hdd</code> <code>disk type</code>, for example.  When workload resource profiles drastically differ, it might make sense to use separate <code>node pools</code> or even separate <code>clusters</code>.</p>
+</li>
+<li>
+<p><strong>Horizontal Pod Autoscaler</strong> - The built-in capability of scaling <code>replicas</code> in a <code>deployment</code> based on CPU usage may or may not be granular enough for your needs.  Ensure that the total capacity of the <code>cluster</code> (capacity of the max number of <code>nodes</code> allowed by autoscaling) is greater than the resources used by the max number of <code>replicas</code> in the <code>deployment</code>.  Also, consider using "external" metrics from Stackdriver like "number of tasks in a pub/sub queue" or "web requests per pod" to be a more accurate and efficient basis for scaling your workloads.</p>
+</li>
+<li>
+<p><strong>Vertical Pod Autoscaler</strong> - Horizontal Pod Autoscaling adds more <code>replicas</code> as needed, but that is assuming the <code>pod</code> has properly set resource <code>requests</code> and <code>limits</code> for CPU and RAM set.  Each <code>pod</code> should be configured with the proper <code>requests</code> for how much CPU and RAM it uses plus 5-10% at idle for its <code>requests</code> setting.  The <code>limit</code> should be the maximum CPU and RAM that the <code>pod</code> will ever use.</p>
+<p>Having accurate <code>requests</code> and <code>limits</code> set for every <code>pod</code> gives the scheduler the correct information for how to place workloads, increases efficiency of resource usage, and reduces the risk of "noisy neighbor" issues from <code>pods</code> that consume more than their set share of resources.</p>
+<p>VPA runs inside the <code>cluster</code> and can monitor workloads for configured <code>requests</code> and <code>limits</code> in comparison with actual usage, and can either "audit" (just make recommendations) or actually modify the <code>deployments</code> dynamically.  It's recommended to run VPA in a <code>cluster</code> in "audit" mode to help find misconfigured <code>pods</code> before they cause <code>cluster</code>-wide outages.</p>
+</li>
+<li>
+<p><strong>Node Autoprovisioner</strong> - The GKE cluster-autoscaler adds or removes <code>nodes</code> from existing <code>node pools</code> based on their available capacity.  If a <code>deployment</code> needs more <code>replicas</code>, there are not enough running <code>nodes</code> to handle them, the <code>node pool</code> is configured to autoscale, and there are more <code>nodes</code> left before the maximum is reached, the autoscaler will add <code>nodes</code> until the workloads are scheduled.</p>
+<p>But what if a <code>pod</code> is asking for resources that a new <code>node</code> can't handle?  For example, a <code>pod</code> that asks for <code>16</code> cpu cores but the <code>nodes</code> are only <code>8</code> core instances?  Or if a <code>pod</code> needs a GPU but the <code>node pool</code> doesn't attach GPUs?  The node autoprovisioner can be configured to <em>dynamically manage node pools</em> for you to help satisfy these situations.  Instead of waiting for an administrator to add a new <code>node pool</code>, the cluster autoscaler can do that for you.</p>
+</li>
+</ul>
+<h3 id="resources_1">Resources<a class="headerlink" href="#resources_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://cloud.google.com/solutions/scope-and-size-kubernetes-engine-clusters">GKE Cluster Sizing</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/resizing-a-cluster">GKE Cluster Resizing</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/scaling-apps">Horizontal Pod Autoscaler</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/concepts/verticalpodautoscaler">Vertical Pod Autoscaler</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning">GKE Node Auto-Provisioner</a></li>
+</ul>
                 
                   
                 
