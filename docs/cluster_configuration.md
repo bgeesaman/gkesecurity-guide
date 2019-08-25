@@ -171,3 +171,22 @@ For a full list of `node` configuration level items, the [google_container_node_
     * **Sandbox Config (Gvisor)** - Disabled by default, this allows the `nodes` to run `pods` with the `gVisor` sandboxing technology.  This provides much greater isolation of the container and its ability to interact with the host kernel, but certain `pod` features are not supported.  Disk performance of those `pods` will be negatively affected, so additional acceptance testing encouraged. Recommend: enabled on dedicated `node pools` where workloads are running that need additional isolation.
     * **Service Account** - By default, the "Default Compute Service Account" in the `project` is assigned, and this has `Project Editor` bound.  To give each `cluster` and/or `node pool` the ability to use separate and least-privilege permissions, this should be a dedicated `service account` created for each `cluster` or `node pool`, and the minimum permissions assigned to it.  Used in conjunction with Oauth Scopes.  Recommend: create and specify a dedicated `service account` and not the default.
     * **Workload Metadata** - Not set by default (the equivalent of "UNSPECIFIED"), this flag enables either the Metadata Concealment Proxy ("SECURE") or Workload Identity ("GKE_METADATA_SERVER") options.  The Workload Identity feature performs all of the same concealment functionality of the Metadata Concealment Proxy buth with the added ability of mapping KSAs to GSAs for dynamic GCP credential access.  Recommend: "GKE_METADATA_SERVER".
+
+### Resources
+
+* [Hardening GKE Clusters](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster)
+* [Private GKE Clusters](https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters)
+* [GCE SSH Access](https://cloud.google.com/compute/docs/instances/connecting-to-instance)
+* [GKE Master Authorized Networks](https://cloud.google.com/kubernetes-engine/docs/how-to/authorized-networks)
+* [Terraform Cluster Provider](https://www.terraform.io/docs/providers/google/r/container_cluster.html)
+* [Terraform Node Pool Provider](https://www.terraform.io/docs/providers/google/r/container_node_pool.html)
+* [GKE Pod Security Policy](https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies)
+* [Open Policy Agent](https://www.openpolicyagent.org/)
+* [Gatekeeper](https://github.com/open-policy-agent/gatekeeper)
+* [COS](https://cloud.google.com/kubernetes-engine/docs/concepts/node-images)
+* [COS_containerd](https://cloud.google.com/kubernetes-engine/docs/concepts/using-containerd)
+* [GKE Metadata Concealment](https://cloud.google.com/kubernetes-engine/docs/how-to/protecting-cluster-metadata)
+* [GKE Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+* [GKE OAuth Scopes](https://cloud.google.com/kubernetes-engine/docs/how-to/access-scopes)
+* [gVisor Sandboxing](https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods)
+* [VPC/Pod Flow Logs](https://cloud.google.com/kubernetes-engine/docs/how-to/intranode-visibility)
