@@ -301,6 +301,19 @@
     Infrastructure as Code
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resources" title="Resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -333,7 +346,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#resources" title="Resources" class="md-nav__link">
+  <a href="#resources_1" title="Resources" class="md-nav__link">
     Resources
   </a>
   
@@ -353,7 +366,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#resources_1" title="Resources" class="md-nav__link">
+  <a href="#resources_2" title="Resources" class="md-nav__link">
     Resources
   </a>
   
@@ -472,6 +485,19 @@
     Infrastructure as Code
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resources" title="Resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -504,7 +530,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#resources" title="Resources" class="md-nav__link">
+  <a href="#resources_1" title="Resources" class="md-nav__link">
     Resources
   </a>
   
@@ -524,7 +550,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#resources_1" title="Resources" class="md-nav__link">
+  <a href="#resources_2" title="Resources" class="md-nav__link">
     Resources
   </a>
   
@@ -556,7 +582,262 @@
                 
                 <h1 id="cluster-lifecycle">Cluster Lifecycle<a class="headerlink" href="#cluster-lifecycle" title="Permanent link">&para;</a></h1>
 <h2 id="infrastructure-as-code">Infrastructure as Code<a class="headerlink" href="#infrastructure-as-code" title="Permanent link">&para;</a></h2>
-<p>Documented Terraform example</p>
+<p>Creating GKE <code>clusters</code> using <code>gcloud</code> or the UI console is sufficient for testing purposes, but production-ready deployments should be managed with purpose-built tooling that declaratively set the defined state of infrastructure in code form.  Terraform handles this well and it provides an easy to read example code base for how the security-related features are configured:</p>
+<div class="codehilite"><pre><span></span><span class="go">provider &quot;google-beta&quot; {</span>
+<span class="go">  version = &quot;2.13.0&quot;</span>
+<span class="go">  project = &quot;my-project-id&quot;</span>
+<span class="go">  region  = &quot;us-central1&quot;</span>
+<span class="go">}</span>
+
+
+<span class="go">resource &quot;google_container_cluster&quot; &quot;my-cluster-name&quot; {</span>
+<span class="go">  provider = &quot;google-beta&quot;</span>
+
+<span class="go">  name     = &quot;my-cluster-name&quot;</span>
+<span class="go">  project  = &quot;my-project-id&quot;</span>
+
+<span class="go">  // Configures a highly-available control plane spread across three</span>
+<span class="go">  // zones in this region</span>
+<span class="go">  location = &quot;us-central1&quot;</span>
+
+<span class="go">  // It&#39;s best to create these networks and subnets in terraform</span>
+<span class="go">  // and then reference them here.</span>
+<span class="go">  network    = google_compute_network.network.self_link</span>
+<span class="go">  subnetwork = google_compute_subnetwork.subnetwork.self_link</span>
+
+<span class="go">  // Set this to the version desired.  It will become the starting</span>
+<span class="go">  // point version for the cluster.  Upgrades of the control plane</span>
+<span class="go">  // can be initiated by simply bumping this version and running</span>
+<span class="go">  // terraform apply.</span>
+<span class="go">  min_master_version = &quot;1.13.7-gke19&quot;</span>
+
+<span class="go">  // Specify the newer Kubernetes logging and monitoring features</span>
+<span class="go">  // of the Stackdriver integration.</span>
+<span class="go">  // Previously &quot;logging.googleapis.com&quot;</span>
+<span class="go">  logging_service    = &quot;logging.googleapis.com/kubernetes&quot;</span>
+<span class="go">  monitoring_service = &quot;monitoring.googleapis.com/kubernetes&quot;</span>
+
+<span class="go">  // Do not use the default node pool that GKE provides and instead</span>
+<span class="go">  // use the node pool(s) define below explicitly.  GKE will actually</span>
+<span class="go">  // provision a 1 node node pool and then remove it before making the</span>
+<span class="go">  // node pools below.</span>
+<span class="go">  remove_default_node_pool = true</span>
+<span class="go">  initial_node_count       = 1</span>
+
+<span class="go">  // This is false by default.  RBAC is enabled by default and preferred. </span>
+<span class="go">  enable_legacy_abac = false</span>
+
+<span class="go">  // Enable the Binary Authorization admission controller to allow</span>
+<span class="go">  // this cluster to evaluate a BinAuthZ policy when pods are created</span>
+<span class="go">  // to ensure images come from the proper sources.</span>
+<span class="go">  enable_binary_authorization = true</span>
+
+<span class="go">  // Defines the kubelet setting for how many pods could potentially</span>
+<span class="go">  // run on this node.  Depending on instance type, setting this to</span>
+<span class="go">  // 64 would be more appropriate and use half the IP space.</span>
+<span class="go">  default_max_pods_per_node = 110</span>
+
+<span class="go">  // Enable transparent &quot;application level&quot; encryption of etcd secrets</span>
+<span class="go">  // using a KMS keyring/key.  Can be a software or HSM-backed KMS key</span>
+<span class="go">  // for extra compliance requirements.</span>
+<span class="go">  database_encryption {</span>
+<span class="go">    key_name = &quot;my-existing-kms-key&quot;</span>
+<span class="go">    state    = &quot;ENCRYPTED&quot;</span>
+<span class="go">  }</span>
+
+<span class="go">  addons_config {</span>
+<span class="go">    // Do not deploy the in-cluster K8s dashboard and defer to kubectl</span>
+<span class="go">    // and the GCP UI console.</span>
+<span class="go">    kubernetes_dashboard {</span>
+<span class="go">      disabled = true</span>
+<span class="go">    }</span>
+
+<span class="go">    // Enable network policy (Calico) as an addon.</span>
+<span class="go">    network_policy_config {</span>
+<span class="go">      disabled = false</span>
+<span class="go">    }</span>
+
+<span class="go">    // Provide the ability to scale pod replicas based on real-time metrics</span>
+<span class="go">    horizontal_pod_autoscaling {</span>
+<span class="go">      disabled = false</span>
+<span class="go">    }</span>
+<span class="go">  }</span>
+
+<span class="go">  // Enable intranode visibility to expose pod-to-pod traffic to the VPC</span>
+<span class="go">  // for flow logging potential.  Requires enabling VPC Flow Logging</span>
+<span class="go">  // on the subnet first</span>
+<span class="go">  enable_intranode_visibility = true</span>
+
+<span class="go">  // Enables the PSP admission controller in the cluster.  DO NOT enable this</span>
+<span class="go">  // on an existing cluster without first configuring the necessary pod security</span>
+<span class="go">  // policies and RBAC role bindings or you will inhibit pods from running</span>
+<span class="go">  // until those are correctly configured.  Recommend success in a test env first.</span>
+<span class="go">  pod_security_policy_config {</span>
+<span class="go">    enabled = true</span>
+<span class="go">  }</span>
+
+<span class="go">  // Enable the VPA addon in the cluster to track actual usage vs requests/limits.</span>
+<span class="go">  // Safe to enable at any time.</span>
+<span class="go">  vertical_pod_autoscaling {</span>
+<span class="go">    enabled = true</span>
+<span class="go">  }</span>
+
+<span class="go">  // Configure the workload identity &quot;identity namespace&quot;.  Requires additional</span>
+<span class="go">  // configuration on the node pool for workload identity to function.</span>
+<span class="go">  workload_identity_config {</span>
+<span class="go">    identity_namespace = &quot;my-project-id.svc.goog.id&quot;</span>
+<span class="go">  }</span>
+
+<span class="go">  // Disable basic authentication and cert-based authentication.</span>
+<span class="go">  // Empty fields for username and password are how to &quot;disable&quot; the</span>
+<span class="go">  // credentials from being generated.</span>
+<span class="go">  master_auth {</span>
+<span class="go">    username = &quot;&quot;</span>
+<span class="go">    password = &quot;&quot;</span>
+
+<span class="go">    client_certificate_config {</span>
+<span class="go">      issue_client_certificate = false</span>
+<span class="go">    }</span>
+<span class="go">  }</span>
+
+<span class="go">  // Enable network policy configurations via Calico.  Must be configured with</span>
+<span class="go">  // the block in the addons section.</span>
+<span class="go">  network_policy {</span>
+<span class="go">    enabled = true</span>
+<span class="go">  }</span>
+
+<span class="go">  // Give GKE a 4 hour window each day in which to perform maintenance operations</span>
+<span class="go">  // and required security patches. In UTC.</span>
+<span class="go">  maintenance_policy {</span>
+<span class="go">    daily_maintenance_window {</span>
+<span class="go">      start_time = &quot;TODO&quot;</span>
+<span class="go">    }</span>
+<span class="go">  }</span>
+
+<span class="go">  // Use VPC Aliasing to improve performance and reduce network hops between nodes and load balancers.  References the secondary ranges specified in the VPC subnet.</span>
+<span class="go">  ip_allocation_policy {</span>
+<span class="go">    use_ip_aliases                = true</span>
+<span class="go">    cluster_secondary_range_name  = google_compute_subnetwork.subnetwork.secondary_ip_range.0.range_name</span>
+<span class="go">    services_secondary_range_name = google_compute_subnetwork.subnetwork.secondary_ip_range.1.range_name</span>
+<span class="go">  }</span>
+
+<span class="go">  // Specify the list of CIDRs which can access the master&#39;s API.  This can be</span>
+<span class="go">  // a list of up to 50 CIDRs.  It&#39;s basically a control plane firewall rulebase.</span>
+<span class="go">  // Nodes automatically/always have access, so these are for users and automation</span>
+<span class="go">  // systems.</span>
+<span class="go">  master_authorized_networks_config {</span>
+<span class="go">    cidr_blocks {</span>
+<span class="go">      cidr_block = &quot;10.0.0.0/8&quot;</span>
+<span class="go">      display_name = &quot;VPC Subnet&quot;</span>
+<span class="go">    }</span>
+<span class="go">    cidr_blocks {</span>
+<span class="go">      cidr_block   = &quot;192.168.0.0/24&quot;</span>
+<span class="go">      display_name = &quot;Admin Subnet&quot;</span>
+<span class="go">    }</span>
+<span class="go">  }</span>
+
+<span class="go">  // Configure the cluster to have private nodes and private control plane access only</span>
+<span class="go">  private_cluster_config {</span>
+<span class="go">    // Enables the control plane to not be exposed via public IP and which subnet to</span>
+<span class="go">    // use an IP from.</span>
+<span class="go">    enable_private_endpoint = true</span>
+<span class="go">    master_ipv4_cidr_block  = &quot;172.20.20.0/28&quot;</span>
+<span class="go">    // Specifies that all nodes in all node pools for this cluster should not have a</span>
+<span class="go">    // public IP automatically assigned.</span>
+<span class="go">    enable_private_nodes    = true</span>
+<span class="go">  }</span>
+<span class="go">}</span>
+
+<span class="go">resource &quot;google_container_node_pool&quot; &quot;my-node-pool&quot; {</span>
+<span class="go">  provider  = &quot;google-beta&quot;</span>
+
+<span class="go">  name       = &quot;my-node-pool&quot;</span>
+<span class="go">  // Spread nodes in this node pool evenly across the three zones in this region.</span>
+<span class="go">  location   = &quot;us-central1&quot;</span>
+<span class="go">  cluster    = google_container_cluster.my-cluster-name.name</span>
+<span class="go">  // Must be at or below the control plane version.  Bump this field to trigger a</span>
+<span class="go">  // rolling node pool upgrade.</span>
+<span class="go">  version    = &quot;1.13.7-gke19&quot;</span>
+<span class="go">  // Because this is a regional cluster and a regional node pool, this is the</span>
+<span class="go">  // number of nodes per-zone to create.  1 will create 3 total nodes.</span>
+<span class="go">  node_count = 1</span>
+
+<span class="go">  // Overrides the cluster setting on a per-node-pool basis.</span>
+<span class="go">  max_pods_per_node = 110</span>
+
+<span class="go">  // The min and max number of nodes (per-zone) to scale to.  This defines a three</span>
+<span class="go">  // to 30 node cluster.</span>
+<span class="go">  autoscaling {</span>
+<span class="go">    min_node_count = 1</span>
+<span class="go">    max_node_count = 10</span>
+<span class="go">  }</span>
+
+<span class="go">  // Fix broken nodes automatically and keep them updated with the control plane.</span>
+<span class="go">  management {</span>
+<span class="go">    auto_repair  = &quot;true&quot;</span>
+<span class="go">    auto_upgrade = &quot;true&quot;</span>
+<span class="go">  }</span>
+
+<span class="go">  node_config {</span>
+<span class="go">    machine_type    = &quot;n1-standard-1&quot;</span>
+<span class="go">    // pd-standard is often too slow, so using pd-ssd&#39;s is recommended for pods</span>
+<span class="go">    // that do any scratch disk operations.</span>
+<span class="go">    disk_type       = &quot;pd-ssd&quot; </span>
+<span class="go">    // COS or COS_containerd are ideal here.  Ubuntu if specific kernel features or</span>
+<span class="go">    // disk drivers are necessary.</span>
+<span class="go">    image_type      = &quot;COS&quot;</span>
+
+<span class="go">    // Use a custom service account for this node pool.  Be sure to grant it</span>
+<span class="go">    // a minimal amount of IAM roles and not Project Editor like the default SA.</span>
+<span class="go">    service_account = &quot;dedicated-sa-name@my-project-id.iam.gserviceaccount.com&quot;</span>
+
+<span class="go">    // Use the default/minimal oauth scopes to help restrict the permissions to</span>
+<span class="go">    // only those needed for GCR and stackdriver logging/monitoring/tracing needs.</span>
+<span class="go">    oauth_scopes = [</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/devstorage.read_only&quot;,</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/logging.write&quot;,</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/monitoring&quot;,</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/servicecontrol&quot;,</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/service.management.readonly&quot;,</span>
+<span class="go">      &quot;https://www.googleapis.com/auth/trace.append&quot;</span>
+<span class="go">    ]</span>
+
+<span class="go">    // Enable GKE Sandbox (Gvisor) on this node pool.  This cannot be set on the</span>
+<span class="go">    // only node pool in the cluster as system workloads are not all compatible</span>
+<span class="go">    // with the restrictions and protections offered by gvisor.</span>
+<span class="go">    sandbox_config {</span>
+<span class="go">      sandbox_type = &quot;gvisor&quot;</span>
+<span class="go">    }</span>
+
+<span class="go">    // Protect node metadata and enable Workload Identity</span>
+<span class="go">    // for this node pool.  &quot;SECURE&quot; just protects the metadata.</span>
+<span class="go">    // &quot;EXPOSE&quot; or not set allows for cluster takeover.</span>
+<span class="go">    // &quot;GKE_METADATA_SERVER&quot; specifies that each pod&#39;s requests to the metadata</span>
+<span class="go">    // API for credentials should be intercepted and given the specific</span>
+<span class="go">    // credentials for that pod only and not the node&#39;s.</span>
+<span class="go">    workload_metadata_config {</span>
+<span class="go">      node_metadata = &quot;GKE_METADATA_SERVER&quot;</span>
+<span class="go">    }</span>
+
+<span class="go">    metadata = {</span>
+<span class="go">      // Set metadata on the VM to supply more entropy</span>
+<span class="go">      google-compute-enable-virtio-rng = &quot;true&quot;</span>
+<span class="go">      // Explicitly remove GCE legacy metadata API endpoint to prevent most SSRF</span>
+<span class="go">      // bugs in apps running on pods inside the cluster from giving attackers</span>
+<span class="go">      // a path to pull the GKE metadata/bootstrapping credentials.</span>
+<span class="go">      disable-legacy-endpoints = &quot;true&quot;</span>
+<span class="go">    }</span>
+
+<span class="go">  }</span>
+<span class="go">}</span>
+</pre></div>
+
+<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://terraform.io">Terraform</a></li>
+<li><a href="https://www.terraform.io/docs/providers/google/r/container_cluster.html">Terraform Cluster Provider</a></li>
+<li><a href="https://www.terraform.io/docs/providers/google/r/container_node_pool.html">Terraform Node Pool Provider</a></li>
+</ul>
 <h2 id="upgrades-and-security-fixes">Upgrades and Security Fixes<a class="headerlink" href="#upgrades-and-security-fixes" title="Permanent link">&para;</a></h2>
 <h3 id="control-plane-upgrades">Control Plane Upgrades<a class="headerlink" href="#control-plane-upgrades" title="Permanent link">&para;</a></h3>
 <p>One of the most important problems that GKE helps solve is maintaining the control plane components for you.  Using <code>gcloud</code> or the UI console, upgrading the control plane version is a single API call.  There are a few important concepts to understand with this feature:</p>
@@ -582,7 +863,7 @@
 </ul>
 <h3 id="security-bulletins">Security Bulletins<a class="headerlink" href="#security-bulletins" title="Permanent link">&para;</a></h3>
 <p>Another benefit of a managed service like GKE is the reduced operational security burden on having to triage, test, and manage upgrades due to security issues.  The GKE Security Bulletins website and Atom/RSS feed provide a consolidated view of all things security-related in GKE.  It is strongly recommended that teams subscribe to and receive automatic updates from the feed as the information is timely and typically very clear on which actions GKE the service is taking and which actions are left to you.</p>
-<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
+<h3 id="resources_1">Resources<a class="headerlink" href="#resources_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#upgrading_the_master">GKE Cluster Upgrades</a></li>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#upgrading_nodes">GKE Node Pool Upgrades</a></li>
@@ -610,7 +891,7 @@
 <p>But what if a <code>pod</code> is asking for resources that a new <code>node</code> can't handle?  For example, a <code>pod</code> that asks for <code>16</code> cpu cores but the <code>nodes</code> are only <code>8</code> core instances?  Or if a <code>pod</code> needs a GPU but the <code>node pool</code> doesn't attach GPUs?  The node autoprovisioner can be configured to <em>dynamically manage node pools</em> for you to help satisfy these situations.  Instead of waiting for an administrator to add a new <code>node pool</code>, the cluster autoscaler can do that for you.</p>
 </li>
 </ul>
-<h3 id="resources_1">Resources<a class="headerlink" href="#resources_1" title="Permanent link">&para;</a></h3>
+<h3 id="resources_2">Resources<a class="headerlink" href="#resources_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://cloud.google.com/solutions/scope-and-size-kubernetes-engine-clusters">GKE Cluster Sizing</a></li>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/resizing-a-cluster">GKE Cluster Resizing</a></li>
