@@ -36,7 +36,7 @@
     
     
       
-        <title>Detection and Response - The Unofficial GKE Security Guide</title>
+        <title>Common Weaknesses and Misconfigurations - The Unofficial GKE Security Guide</title>
       
     
     
@@ -85,7 +85,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#detection-and-response" tabindex="1" class="md-skip">
+      <a href="#weaknesses-and-misconfigurations" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -111,7 +111,7 @@
             </span>
             <span class="md-header-nav__topic">
               
-                Detection and Response
+                Common Weaknesses and Misconfigurations
               
             </span>
           
@@ -340,6 +340,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../detection_and_response/" title="Detection and Response" class="md-nav__link">
+      Detection and Response
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -351,11 +363,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Detection and Response
+        Common Weaknesses and Misconfigurations
       </label>
     
-    <a href="./" title="Detection and Response" class="md-nav__link md-nav__link--active">
-      Detection and Response
+    <a href="./" title="Common Weaknesses and Misconfigurations" class="md-nav__link md-nav__link--active">
+      Common Weaknesses and Misconfigurations
     </a>
     
       
@@ -369,29 +381,43 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#runtime-detection" title="Runtime Detection" class="md-nav__link">
-    Runtime Detection
+  <a href="#legacy-credentials" title="Legacy Credentials" class="md-nav__link">
+    Legacy Credentials
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#incident-response" title="Incident Response" class="md-nav__link">
-    Incident Response
+  <a href="#default-service-account-and-project-editor-iam-role" title="Default Service Account and Project Editor IAM Role" class="md-nav__link">
+    Default Service Account and Project Editor IAM Role
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#forensics" title="Forensics" class="md-nav__link">
-    Forensics
+  <a href="#exposed-metadata-api" title="Exposed Metadata API" class="md-nav__link">
+    Exposed Metadata API
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#credential-revocation-and-rotation" title="Credential Revocation and Rotation" class="md-nav__link">
-    Credential Revocation and Rotation
+  <a href="#lack-of-pod-spec-enforcement" title="Lack of Pod Spec Enforcement" class="md-nav__link">
+    Lack of Pod Spec Enforcement
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#images-allowed-from-any-repository" title="Images Allowed from Any Repository" class="md-nav__link">
+    Images Allowed from Any Repository
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overgranting-iam-permissions" title="Overgranting IAM Permissions" class="md-nav__link">
+    Overgranting IAM Permissions
   </a>
   
 </li>
@@ -404,18 +430,6 @@
   
 </nav>
     
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../weaknesses_and_misconfigurations/" title="Common Weaknesses and Misconfigurations" class="md-nav__link">
-      Common Weaknesses and Misconfigurations
-    </a>
   </li>
 
     
@@ -440,29 +454,43 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#runtime-detection" title="Runtime Detection" class="md-nav__link">
-    Runtime Detection
+  <a href="#legacy-credentials" title="Legacy Credentials" class="md-nav__link">
+    Legacy Credentials
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#incident-response" title="Incident Response" class="md-nav__link">
-    Incident Response
+  <a href="#default-service-account-and-project-editor-iam-role" title="Default Service Account and Project Editor IAM Role" class="md-nav__link">
+    Default Service Account and Project Editor IAM Role
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#forensics" title="Forensics" class="md-nav__link">
-    Forensics
+  <a href="#exposed-metadata-api" title="Exposed Metadata API" class="md-nav__link">
+    Exposed Metadata API
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#credential-revocation-and-rotation" title="Credential Revocation and Rotation" class="md-nav__link">
-    Credential Revocation and Rotation
+  <a href="#lack-of-pod-spec-enforcement" title="Lack of Pod Spec Enforcement" class="md-nav__link">
+    Lack of Pod Spec Enforcement
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#images-allowed-from-any-repository" title="Images Allowed from Any Repository" class="md-nav__link">
+    Images Allowed from Any Repository
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overgranting-iam-permissions" title="Overgranting IAM Permissions" class="md-nav__link">
+    Overgranting IAM Permissions
   </a>
   
 </li>
@@ -483,14 +511,16 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/bgeesaman/gkesecurity-guide/edit/master/docs/detection_and_response.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/bgeesaman/gkesecurity-guide/edit/master/docs/weaknesses_and_misconfigurations.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="detection-and-response">Detection and Response<a class="headerlink" href="#detection-and-response" title="Permanent link">&para;</a></h1>
-<h2 id="runtime-detection">Runtime Detection<a class="headerlink" href="#runtime-detection" title="Permanent link">&para;</a></h2>
-<h2 id="incident-response">Incident Response<a class="headerlink" href="#incident-response" title="Permanent link">&para;</a></h2>
-<h2 id="forensics">Forensics<a class="headerlink" href="#forensics" title="Permanent link">&para;</a></h2>
-<h2 id="credential-revocation-and-rotation">Credential Revocation and Rotation<a class="headerlink" href="#credential-revocation-and-rotation" title="Permanent link">&para;</a></h2>
+                <h1 id="weaknesses-and-misconfigurations">Weaknesses and Misconfigurations<a class="headerlink" href="#weaknesses-and-misconfigurations" title="Permanent link">&para;</a></h1>
+<h2 id="legacy-credentials">Legacy Credentials<a class="headerlink" href="#legacy-credentials" title="Permanent link">&para;</a></h2>
+<h2 id="default-service-account-and-project-editor-iam-role">Default Service Account and Project Editor IAM Role<a class="headerlink" href="#default-service-account-and-project-editor-iam-role" title="Permanent link">&para;</a></h2>
+<h2 id="exposed-metadata-api">Exposed Metadata API<a class="headerlink" href="#exposed-metadata-api" title="Permanent link">&para;</a></h2>
+<h2 id="lack-of-pod-spec-enforcement">Lack of Pod Spec Enforcement<a class="headerlink" href="#lack-of-pod-spec-enforcement" title="Permanent link">&para;</a></h2>
+<h2 id="images-allowed-from-any-repository">Images Allowed from Any Repository<a class="headerlink" href="#images-allowed-from-any-repository" title="Permanent link">&para;</a></h2>
+<h2 id="overgranting-iam-permissions">Overgranting IAM Permissions<a class="headerlink" href="#overgranting-iam-permissions" title="Permanent link">&para;</a></h2>
                 
                   
                 
@@ -511,7 +541,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../audit_and_compliance/" title="Audit and Compliance" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../detection_and_response/" title="Detection and Response" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -520,25 +550,11 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Audit and Compliance
+                Detection and Response
               </span>
             </div>
           </a>
         
-        
-          <a href="../weaknesses_and_misconfigurations/" title="Common Weaknesses and Misconfigurations" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Common Weaknesses and Misconfigurations
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
         
       </nav>
     </div>
