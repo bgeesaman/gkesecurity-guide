@@ -9,5 +9,3 @@
 ## Forseti Security
 
 ## CSCC
-
-## Common Misconfigurations

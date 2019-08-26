@@ -25,6 +25,7 @@ nav:
   - Container Images: container_images.md
   - Audit and Compliance: audit_and_compliance.md
   - Detection and Response: detection_and_response.md
+  - Common Weaknesses and Misconfigurations: weaknesses_and_misconfigurations.md
 markdown_extensions:
   - markdown.extensions.admonition
   - markdown.extensions.codehilite:
