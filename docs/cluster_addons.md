@@ -1,9 +1,9 @@
 # Cluster Add-ons
 
-## Cloud Run on GKE
-
 ## Anthos Configuration Management
 
-## Istio
+## Binary Authorization
 
-## GPUs
+## GKE Sandbox (gVisor)
+
+## Workload Identity
