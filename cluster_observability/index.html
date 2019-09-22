@@ -589,11 +589,12 @@
 </ul>
 <h3 id="gce-logs-for-gke-clusters">GCE Logs for GKE Clusters<a class="headerlink" href="#gce-logs-for-gke-clusters" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>GCE Instance Group</strong> - <code>resource.type=""</code></li>
-<li><strong>GCE Instance Group Manager</strong> - <code>resource.type=""</code></li>
-<li><strong>GCE Instance Template</strong> - <code>resource.type=""</code></li>
-<li><strong>GCE VM Instance</strong> - <code>resource.type=""</code></li>
-<li><strong>GCE Disk</strong> - <code>resource.type=""</code></li>
+<li><strong>GCE Instance Group</strong> - <code>resource.type="gce_instance_group"</code> Logs when GKE worker instances are added/removed from the <code>node pool</code> instance group.</li>
+<li><strong>GCE Instance Group Manager</strong> - <code>resource.type=""</code> Logs for GCE Instance group operations success/failure.</li>
+<li><strong>GCE Instance Template</strong> - <code>resource.type=""</code> Logs for when the <code>instanceTemplate</code> for a <code>node pool</code> instance group is inserted/updated/deleted.</li>
+<li><strong>GCE VM Instance</strong> - <code>resource.type="gce_instance"</code> Logs when GKE worker instances are inserted/deleted, their secure boot attestation output status, and more.</li>
+<li><strong>GCE Disk</strong> - <code>resource.type="gce_disk"</code> Shows GKE specific operations on the underlying GCE VM Disks.</li>
+<li><strong>GCE Subnetwork</strong> - <code>resource.type="gce_subnetwork"</code> Shows GKE specific operations on the <code>subnets</code> when <code>clusters</code> and <code>node pools</code> are modified.</li>
 </ul>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <ul>
