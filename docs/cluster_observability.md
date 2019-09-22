@@ -22,11 +22,12 @@ When `logging.googleapis.com/kubernetes` is enabled for a `cluster` in a `projec
 
 ### GCE Logs for GKE Clusters
 
-* **GCE Instance Group** - `resource.type=""`
-* **GCE Instance Group Manager** - `resource.type=""`
-* **GCE Instance Template** - `resource.type=""`
-* **GCE VM Instance** - `resource.type=""`
-* **GCE Disk** - `resource.type=""`
+* **GCE Instance Group** - `resource.type="gce_instance_group"` Logs when GKE worker instances are added/removed from the `node pool` instance group.
+* **GCE Instance Group Manager** - `resource.type=""` Logs for GCE Instance group operations success/failure.
+* **GCE Instance Template** - `resource.type=""` Logs for when the `instanceTemplate` for a `node pool` instance group is inserted/updated/deleted.
+* **GCE VM Instance** - `resource.type="gce_instance"` Logs when GKE worker instances are inserted/deleted, their secure boot attestation output status, and more.
+* **GCE Disk** - `resource.type="gce_disk"` Shows GKE specific operations on the underlying GCE VM Disks.
+* **GCE Subnetwork** - `resource.type="gce_subnetwork"` Shows GKE specific operations on the `subnets` when `clusters` and `node pools` are modified.
 
 ### Resources
 
