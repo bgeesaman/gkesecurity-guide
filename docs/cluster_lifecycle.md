@@ -128,6 +128,18 @@ resource "google_container_cluster" "my-cluster-name" {
     enabled = true
   }
 
+  // The Google Security group that contains the "allowed list" of other Google
+  // Security groups that can be referenced via in-cluster RBAC bindings instead
+  // of having to specify Users one by one.
+  // e.g.
+  // gke-security-groups
+  // - groupA
+  // - groupB
+  // And now, an RBAC RoleBinding/ClusterRoleBinding can reference Group: groupA
+  authenticator_groups_config {
+    security_group = "gke-security-groups@mydomain.com"
+  }
+
   // Give GKE a 4 hour window each day in which to perform maintenance operations
   // and required security patches. In UTC.
   maintenance_policy {
