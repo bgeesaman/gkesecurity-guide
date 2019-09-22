@@ -324,6 +324,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#cos-auditd-logs" title="COS Auditd Logs" class="md-nav__link">
+    COS Auditd Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gce-logs-for-gke-clusters" title="GCE Logs for GKE Clusters" class="md-nav__link">
     GCE Logs for GKE Clusters
   </a>
@@ -495,6 +502,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#cos-auditd-logs" title="COS Auditd Logs" class="md-nav__link">
+    COS Auditd Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gce-logs-for-gke-clusters" title="GCE Logs for GKE Clusters" class="md-nav__link">
     GCE Logs for GKE Clusters
   </a>
@@ -587,6 +601,44 @@
 <li><strong>Kubernetes Pod</strong> - <code>resource.type="k8s_pod"</code> Captures <code>pod</code> "events" logs that describe the lifecycle/operations of <code>pods</code>.  If you run <code>kubectl describe pod &lt;podname&gt;</code> and view the "Events" section manually during troubleshooting, these will be familiar.  It's important to note that the "Events" logs in Kubernetes do not persist after a certain period of time, so shipping these to Stackdriver allows for diagnosing issues after the fact.  Adding the filter <code>resource.labels.pod_name="mynginx-5b97b974b6-6x589" resource.labels.cluster_name="standard-cluster-2" resource.labels.location="us-central1-a" resource.labels.namespace_name="default"</code> allows for narrowing things down to a specific <code>pod</code> in a specific <code>namespace</code> in a specific <code>cluster</code>.</li>
 <li><strong>Kubernetes Container</strong> - <code>resource.type="k8s_container"</code> Captures the per-<code>container</code> logs that your application emits.  The same output as if you run <code>kubectl logs mypod -c mycontainer</code>.  In addition to the <code>cluster</code>/<code>namespace</code>/<code>pod</code> filters also used by the <code>pod</code> logs, add <code>resource.labels.container_name="mycontainer"</code> to get the logs from a specific <code>container</code>.</li>
 </ul>
+<h3 id="cos-auditd-logs">COS Auditd Logs<a class="headerlink" href="#cos-auditd-logs" title="Permanent link">&para;</a></h3>
+<p>By default, logs from the Linux <code>audit</code> subsystem are not shipped via the native Stackdriver Kubernetes Engine Logging mechanism on GKE Worker instances running COS. To capture and ship these logs, you must manually deploy a separate <code>daemonset</code> from <a href="https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-node-tools/master/os-audit/cos-auditd-logging.yaml">this YAML manifest</a>.  This daemonset pulls specific logs from the operating system above and beyond the normal Stackdriver Kubernetes Engine Logging daemonset.  Examples include:</p>
+<ul>
+<li><code>auditd</code> configuration modifications</li>
+<li>AppArmor logs</li>
+<li>Executions of <code>execve()</code>, <code>socket()</code>, <code>setsockopt()</code>, and <code>mmap()</code></li>
+<li>User logins</li>
+<li>SSH session and TTY sessions</li>
+</ul>
+<p>These are potentially verbose but very important logs from a security perspective.  It is recommended that you deploy this immediately after creating the <code>cluster</code>.</p>
+<p>Below is a snippet from a TTY (SSH session) to a GKE <code>node</code> with a couple <code>MESSAGE</code> field contents:</p>
+<div class="codehilite"><pre><span></span>resource.type=&quot;gce_instance&quot;
+jsonPayload.SYSLOG_IDENTIFIER=&quot;audit&quot;
+</pre></div>
+
+<div class="codehilite"><pre><span></span>SYSCALL arch=c000003e syscall=59 success=yes exit=0 a0=1051108 a1=10552c8 a2=1052008 a3=59a items=2 ppid=72125 pid=72142 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=4294967295 comm=&quot;hostname&quot; exe=&quot;/bin/hostname&quot; key=(null)
+USER_START pid=85481 uid=0 auid=5002 ses=6 msg=&#39;op=PAM:session_open grantors=pam_loginuid,pam_env,pam_lastlog,pam_limits,pam_env,pam_unix,pam_permit,pam_tty_audit,pam_mail acct=&quot;myusername&quot; exe=&quot;/usr/sbin/sshd&quot; hostname=74.125.177.96 addr=74.125.177.96 terminal=ssh res=success&#39;
+</pre></div>
+
+<p>In order to get logs from other systemd units like <code>sshd.service</code>, you can modify the <code>ConfigMap</code> of the YAML manifest and add this block following below the <code>linux-auditd</code> block:</p>
+<div class="codehilite"><pre><span></span>    &lt;source&gt;
+      @type systemd
+      filters [{ &quot;_SYSTEMD_UNIT&quot;: &quot;sshd.service&quot; }]
+      pos_file /var/log/gcp-journald-sshd.pos
+      read_from_head true
+      tag sshd
+    &lt;/source&gt;
+</pre></div>
+
+<p>To take effect, run <code>kubectl delete -f cos-auditd-logging.yaml</code> and <code>kubectl apply -f cos-auditd-logging.yaml</code>.</p>
+<p>SSHD related logs will appear using the following filter:</p>
+<div class="codehilite"><pre><span></span>resource.type=&quot;gce_instance&quot;
+jsonPayload._SYSTEMD_UNIT=&quot;sshd.service&quot;
+</pre></div>
+
+<div class="codehilite"><pre><span></span>pam_unix(sshd:session): session opened for user myusername by (uid=0)
+</pre></div>
+
 <h3 id="gce-logs-for-gke-clusters">GCE Logs for GKE Clusters<a class="headerlink" href="#gce-logs-for-gke-clusters" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>GCE Instance Group</strong> - <code>resource.type="gce_instance_group"</code> Logs when GKE worker instances are added/removed from the <code>node pool</code> instance group.</li>
@@ -599,6 +651,7 @@
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/audit-logging">GKE Audit Logging</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging">COS Auditd Logging</a></li>
 </ul>
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
 <h3 id="node-metrics">Node Metrics<a class="headerlink" href="#node-metrics" title="Permanent link">&para;</a></h3>
