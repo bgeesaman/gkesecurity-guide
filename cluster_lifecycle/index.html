@@ -718,6 +718,18 @@
 <span class="go">    enabled = true</span>
 <span class="go">  }</span>
 
+<span class="go">  // The Google Security group that contains the &quot;allowed list&quot; of other Google</span>
+<span class="go">  // Security groups that can be referenced via in-cluster RBAC bindings instead</span>
+<span class="go">  // of having to specify Users one by one.</span>
+<span class="go">  // e.g.</span>
+<span class="go">  // gke-security-groups</span>
+<span class="go">  // - groupA</span>
+<span class="go">  // - groupB</span>
+<span class="go">  // And now, an RBAC RoleBinding/ClusterRoleBinding can reference Group: groupA</span>
+<span class="go">  authenticator_groups_config {</span>
+<span class="go">    security_group = &quot;gke-security-groups@mydomain.com&quot;</span>
+<span class="go">  }</span>
+
 <span class="go">  // Give GKE a 4 hour window each day in which to perform maintenance operations</span>
 <span class="go">  // and required security patches. In UTC.</span>
 <span class="go">  maintenance_policy {</span>
