@@ -20,6 +20,55 @@ When `logging.googleapis.com/kubernetes` is enabled for a `cluster` in a `projec
 * **Kubernetes Pod** - `resource.type="k8s_pod"` Captures `pod` "events" logs that describe the lifecycle/operations of `pods`.  If you run `kubectl describe pod <podname>` and view the "Events" section manually during troubleshooting, these will be familiar.  It's important to note that the "Events" logs in Kubernetes do not persist after a certain period of time, so shipping these to Stackdriver allows for diagnosing issues after the fact.  Adding the filter `resource.labels.pod_name="mynginx-5b97b974b6-6x589" resource.labels.cluster_name="standard-cluster-2" resource.labels.location="us-central1-a" resource.labels.namespace_name="default"` allows for narrowing things down to a specific `pod` in a specific `namespace` in a specific `cluster`.
 * **Kubernetes Container** - `resource.type="k8s_container"` Captures the per-`container` logs that your application emits.  The same output as if you run `kubectl logs mypod -c mycontainer`.  In addition to the `cluster`/`namespace`/`pod` filters also used by the `pod` logs, add `resource.labels.container_name="mycontainer"` to get the logs from a specific `container`.
 
+### COS Auditd Logs
+
+By default, logs from the Linux `audit` subsystem are not shipped via the native Stackdriver Kubernetes Engine Logging mechanism on GKE Worker instances running COS. To capture and ship these logs, you must manually deploy a separate `daemonset` from [this YAML manifest](https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-node-tools/master/os-audit/cos-auditd-logging.yaml).  This daemonset pulls specific logs from the operating system above and beyond the normal Stackdriver Kubernetes Engine Logging daemonset.  Examples include:
+
+* `auditd` configuration modifications
+* AppArmor logs
+* Executions of `execve()`, `socket()`, `setsockopt()`, and `mmap()`
+* User logins
+* SSH session and TTY sessions
+
+These are potentially verbose but very important logs from a security perspective.  It is recommended that you deploy this immediately after creating the `cluster`.
+
+Below is a snippet from a TTY (SSH session) to a GKE `node` with a couple `MESSAGE` field contents:
+
+```
+resource.type="gce_instance"
+jsonPayload.SYSLOG_IDENTIFIER="audit"
+```
+
+```
+SYSCALL arch=c000003e syscall=59 success=yes exit=0 a0=1051108 a1=10552c8 a2=1052008 a3=59a items=2 ppid=72125 pid=72142 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=4294967295 comm="hostname" exe="/bin/hostname" key=(null)
+USER_START pid=85481 uid=0 auid=5002 ses=6 msg='op=PAM:session_open grantors=pam_loginuid,pam_env,pam_lastlog,pam_limits,pam_env,pam_unix,pam_permit,pam_tty_audit,pam_mail acct="myusername" exe="/usr/sbin/sshd" hostname=74.125.177.96 addr=74.125.177.96 terminal=ssh res=success'
+```
+
+In order to get logs from other systemd units like `sshd.service`, you can modify the `ConfigMap` of the YAML manifest and add this block following below the `linux-auditd` block:
+
+```
+    <source>
+      @type systemd
+      filters [{ "_SYSTEMD_UNIT": "sshd.service" }]
+      pos_file /var/log/gcp-journald-sshd.pos
+      read_from_head true
+      tag sshd
+    </source>
+```
+
+To take effect, run `kubectl delete -f cos-auditd-logging.yaml` and `kubectl apply -f cos-auditd-logging.yaml`.
+
+SSHD related logs will appear using the following filter:
+
+```
+resource.type="gce_instance"
+jsonPayload._SYSTEMD_UNIT="sshd.service"
+```
+
+```
+pam_unix(sshd:session): session opened for user myusername by (uid=0)
+```
+
 ### GCE Logs for GKE Clusters
 
 * **GCE Instance Group** - `resource.type="gce_instance_group"` Logs when GKE worker instances are added/removed from the `node pool` instance group.
@@ -32,6 +81,7 @@ When `logging.googleapis.com/kubernetes` is enabled for a `cluster` in a `projec
 ### Resources
 
 * [GKE Audit Logging](https://cloud.google.com/kubernetes-engine/docs/how-to/audit-logging)
+* [COS Auditd Logging](https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging)
 
 ## Monitoring
 
