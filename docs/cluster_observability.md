@@ -18,7 +18,7 @@ When `logging.googleapis.com/kubernetes` is enabled for a `cluster` in a `projec
 
 * **Kubernetes Node** - `resource.type="k8s_node"` Captures all logs exported from the GCE Instance operating system for all `nodes` in all `clusters` in the `project`.  In the case of `COS`, these are `systemd` logs.  Add the filter `jsonPayload._SYSTEMD_UNIT="kubelet.service"` to see logs from the `kubelet` systemd unit, and add a filter like `resource.labels.node_name="gke-standard-cluster-1-default-pool-de92f9ef-qwpq"` to limit the scope to a single `node`.  
 * **Kubernetes Pod** - `resource.type="k8s_pod"` Captures `pod` "events" logs that describe the lifecycle/operations of `pods`.  If you run `kubectl describe pod <podname>` and view the "Events" section manually during troubleshooting, these will be familiar.  It's important to note that the "Events" logs in Kubernetes do not persist after a certain period of time, so shipping these to Stackdriver allows for diagnosing issues after the fact.  Adding the filter `resource.labels.pod_name="mynginx-5b97b974b6-6x589" resource.labels.cluster_name="standard-cluster-2" resource.labels.location="us-central1-a" resource.labels.namespace_name="default"` allows for narrowing things down to a specific `pod` in a specific `namespace` in a specific `cluster`.
-* **Kubernetes Container** - `resource.type="k8s_container"`
+* **Kubernetes Container** - `resource.type="k8s_container"` Captures the per-`container` logs that your application emits.  The same output as if you run `kubectl logs mypod -c mycontainer`.  In addition to the `cluster`/`namespace`/`pod` filters also used by the `pod` logs, add `resource.labels.container_name="mycontainer"` to get the logs from a specific `container`.
 
 ### GCE Logs for GKE Clusters
 
