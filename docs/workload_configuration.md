@@ -1,21 +1,31 @@
 # Workload Configuration
 
-## Trusted Image Repos
-
-## Deployment Settings and Best Practices
-
-## Pod Security Policy
-
-## Network Policy
+## Namespace Separation
 
 ## RBAC
 
-## Dynamic Admission Control
+## Admission Control
+
+### Pod Specification Enforcement
+
+### Trusted Image Repositories
+
+### Deployment Settings and Best Practices
+
+## Network Policy
 
 ## Secrets Management
 
+## Affinity
+
+### Node Affinity
+
+### Anti-Affinity
+
 ## Pod Disruption Budgets
 
-## LimitRanges
-
 ## Resource Control
+
+### LimitRanges
+
+### Quotas
