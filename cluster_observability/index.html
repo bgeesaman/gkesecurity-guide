@@ -338,6 +338,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#log-exports" title="Log Exports" class="md-nav__link">
+    Log Exports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#resources" title="Resources" class="md-nav__link">
     Resources
   </a>
@@ -358,8 +365,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cluster-metrics" title="Cluster Metrics" class="md-nav__link">
+    Cluster Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#node-metrics" title="Node Metrics" class="md-nav__link">
     Node Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-metrics" title="Pod Metrics" class="md-nav__link">
+    Pod Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#container-metrics" title="Container Metrics" class="md-nav__link">
+    Container Metrics
   </a>
   
 </li>
@@ -372,8 +400,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workload-metrics" title="Workload Metrics" class="md-nav__link">
-    Workload Metrics
+  <a href="#resources_1" title="Resources" class="md-nav__link">
+    Resources
   </a>
   
 </li>
@@ -516,6 +544,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#log-exports" title="Log Exports" class="md-nav__link">
+    Log Exports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#resources" title="Resources" class="md-nav__link">
     Resources
   </a>
@@ -536,8 +571,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cluster-metrics" title="Cluster Metrics" class="md-nav__link">
+    Cluster Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#node-metrics" title="Node Metrics" class="md-nav__link">
     Node Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-metrics" title="Pod Metrics" class="md-nav__link">
+    Pod Metrics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#container-metrics" title="Container Metrics" class="md-nav__link">
+    Container Metrics
   </a>
   
 </li>
@@ -550,8 +606,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workload-metrics" title="Workload Metrics" class="md-nav__link">
-    Workload Metrics
+  <a href="#resources_1" title="Resources" class="md-nav__link">
+    Resources
   </a>
   
 </li>
@@ -648,15 +704,24 @@ jsonPayload._SYSTEMD_UNIT=&quot;sshd.service&quot;
 <li><strong>GCE Disk</strong> - <code>resource.type="gce_disk"</code> Shows GKE specific operations on the underlying GCE VM Disks.</li>
 <li><strong>GCE Subnetwork</strong> - <code>resource.type="gce_subnetwork"</code> Shows GKE specific operations on the <code>subnets</code> when <code>clusters</code> and <code>node pools</code> are modified.</li>
 </ul>
+<h3 id="log-exports">Log Exports<a class="headerlink" href="#log-exports" title="Permanent link">&para;</a></h3>
+<p>The CIS GCP Benchmarks include a requirement to have a "full" export of all Stackdriver logs to a more permanent destination.  Admin activity logs are stored for you for just over a year, but data access logs are only available for 30 days.  Exporting all logs to a GCS Bucket with a retention policy and lifecycle policy that moves them to "colder" storage over time is highly recommended and often required by compliance frameworks. See <a href="https://cloud.google.com/logging/docs/export/">Log Exports</a> for the mechanics for setting up exports to GCS, Pub/Sub, and/or BigQuery.  Keep in mind that exports only apply to new log lines that arrive after the export is in place.</p>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/audit-logging">GKE Audit Logging</a></li>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging">COS Auditd Logging</a></li>
+<li><a href="https://cloud.google.com/logging/docs/export/">Log Exports</a></li>
 </ul>
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="cluster-metrics">Cluster Metrics<a class="headerlink" href="#cluster-metrics" title="Permanent link">&para;</a></h3>
 <h3 id="node-metrics">Node Metrics<a class="headerlink" href="#node-metrics" title="Permanent link">&para;</a></h3>
+<h3 id="pod-metrics">Pod Metrics<a class="headerlink" href="#pod-metrics" title="Permanent link">&para;</a></h3>
+<h3 id="container-metrics">Container Metrics<a class="headerlink" href="#container-metrics" title="Permanent link">&para;</a></h3>
 <h3 id="kubernetes-state-metrics">Kubernetes State Metrics<a class="headerlink" href="#kubernetes-state-metrics" title="Permanent link">&para;</a></h3>
-<h3 id="workload-metrics">Workload Metrics<a class="headerlink" href="#workload-metrics" title="Permanent link">&para;</a></h3>
+<h3 id="resources_1">Resources<a class="headerlink" href="#resources_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://cloud.google.com/monitoring/kubernetes-engine/observing">Observing GKE</a></li>
+</ul>
                 
                   
                 
