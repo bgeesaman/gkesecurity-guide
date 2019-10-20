@@ -78,15 +78,28 @@ pam_unix(sshd:session): session opened for user myusername by (uid=0)
 * **GCE Disk** - `resource.type="gce_disk"` Shows GKE specific operations on the underlying GCE VM Disks.
 * **GCE Subnetwork** - `resource.type="gce_subnetwork"` Shows GKE specific operations on the `subnets` when `clusters` and `node pools` are modified.
 
+### Log Exports
+
+The CIS GCP Benchmarks include a requirement to have a "full" export of all Stackdriver logs to a more permanent destination.  Admin activity logs are stored for you for just over a year, but data access logs are only available for 30 days.  Exporting all logs to a GCS Bucket with a retention policy and lifecycle policy that moves them to "colder" storage over time is highly recommended and often required by compliance frameworks. See [Log Exports](https://cloud.google.com/logging/docs/export/) for the mechanics for setting up exports to GCS, Pub/Sub, and/or BigQuery.  Keep in mind that exports only apply to new log lines that arrive after the export is in place.
+
 ### Resources
 
 * [GKE Audit Logging](https://cloud.google.com/kubernetes-engine/docs/how-to/audit-logging)
 * [COS Auditd Logging](https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging)
+* [Log Exports](https://cloud.google.com/logging/docs/export/)
 
 ## Monitoring
 
+### Cluster Metrics
+
 ### Node Metrics
+
+### Pod Metrics
+
+### Container Metrics
 
 ### Kubernetes State Metrics
 
-### Workload Metrics
+### Resources
+
+* [Observing GKE](https://cloud.google.com/monitoring/kubernetes-engine/observing)
