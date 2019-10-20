@@ -365,36 +365,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cluster-metrics" title="Cluster Metrics" class="md-nav__link">
-    Cluster Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#node-metrics" title="Node Metrics" class="md-nav__link">
-    Node Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pod-metrics" title="Pod Metrics" class="md-nav__link">
-    Pod Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#container-metrics" title="Container Metrics" class="md-nav__link">
-    Container Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#kubernetes-state-metrics" title="Kubernetes State Metrics" class="md-nav__link">
-    Kubernetes State Metrics
+  <a href="#other-considerations" title="Other Considerations" class="md-nav__link">
+    Other Considerations
   </a>
   
 </li>
@@ -571,36 +543,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cluster-metrics" title="Cluster Metrics" class="md-nav__link">
-    Cluster Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#node-metrics" title="Node Metrics" class="md-nav__link">
-    Node Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pod-metrics" title="Pod Metrics" class="md-nav__link">
-    Pod Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#container-metrics" title="Container Metrics" class="md-nav__link">
-    Container Metrics
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#kubernetes-state-metrics" title="Kubernetes State Metrics" class="md-nav__link">
-    Kubernetes State Metrics
+  <a href="#other-considerations" title="Other Considerations" class="md-nav__link">
+    Other Considerations
   </a>
   
 </li>
@@ -657,6 +601,20 @@
 <li><strong>Kubernetes Pod</strong> - <code>resource.type="k8s_pod"</code> Captures <code>pod</code> "events" logs that describe the lifecycle/operations of <code>pods</code>.  If you run <code>kubectl describe pod &lt;podname&gt;</code> and view the "Events" section manually during troubleshooting, these will be familiar.  It's important to note that the "Events" logs in Kubernetes do not persist after a certain period of time, so shipping these to Stackdriver allows for diagnosing issues after the fact.  Adding the filter <code>resource.labels.pod_name="mynginx-5b97b974b6-6x589" resource.labels.cluster_name="standard-cluster-2" resource.labels.location="us-central1-a" resource.labels.namespace_name="default"</code> allows for narrowing things down to a specific <code>pod</code> in a specific <code>namespace</code> in a specific <code>cluster</code>.</li>
 <li><strong>Kubernetes Container</strong> - <code>resource.type="k8s_container"</code> Captures the per-<code>container</code> logs that your application emits.  The same output as if you run <code>kubectl logs mypod -c mycontainer</code>.  In addition to the <code>cluster</code>/<code>namespace</code>/<code>pod</code> filters also used by the <code>pod</code> logs, add <code>resource.labels.container_name="mycontainer"</code> to get the logs from a specific <code>container</code>.</li>
 </ul>
+<p>In-Cluster Logging Deployments</p>
+<div class="codehilite"><pre><span></span><span class="go">NAMESPACE     NAME                                                        READY   STATUS    RESTARTS   AGE</span>
+<span class="go">kube-system   event-exporter-v0.2.5-7df89f4b8f-cd9z9                      2/2     Running   0          23m</span>
+<span class="go">kube-system   fluentd-gcp-scaler-54ccb89d5-s6wqf                          1/1     Running   0          23m</span>
+<span class="go">kube-system   fluentd-gcp-v3.1.1-4zqtb                                    2/2     Running   0          23m</span>
+<span class="go">kube-system   fluentd-gcp-v3.1.1-7rcnc                                    2/2     Running   0          23m</span>
+<span class="go">kube-system   stackdriver-metadata-agent-cluster-level-5789cffbb4-lfg8l   1/1     Running   0          23m</span>
+</pre></div>
+
+<ul>
+<li><strong>Event Exporter</strong> - A simple API Server <code>event</code> "watcher" with a "prometheus-to-stackdriver" sidecar for shipping cluster events to Stackdriver logs.</li>
+<li><strong>Fluentd GCP</strong> - The main logging agent that ships all pod/container logs to Stackdriver.  Runs as a <code>daemonset</code> with a single replica per worker node, and has a "prometheus-to-stackdriver" sidecar for shipping fluentd's logging metrics about log counts, etc.  Note: Runs as <code>root</code>, binds to the <code>hostNetwork</code>, and mounts several logging related <code>hostPath</code> mounts.  These are necessary to do its job, but be aware of who has the ability to run <code>kubectl exec</code> into <code>pods</code> in the <code>kube-system</code> <code>namespace</code>.</li>
+<li><strong>Stackdriver Metadata Agent</strong> - A simple API Server resource "watcher" that sends metadata about <code>nodes</code>, <code>pods</code>, <code>cronjobs</code>, <code>daemonsets</code>, <code>deployments</code>, <code>endpoints</code>, <code>ingresses</code>, <code>jobs</code>, <code>namespaces</code>, <code>replicasets</code>, <code>replicationcontrollers</code>, <code>services</code>, and <code>statefulsets</code> to Stackdriver so that the dashboard has the appropriate context.</li>
+</ul>
 <h3 id="cos-auditd-logs">COS Auditd Logs<a class="headerlink" href="#cos-auditd-logs" title="Permanent link">&para;</a></h3>
 <p>By default, logs from the Linux <code>audit</code> subsystem are not shipped via the native Stackdriver Kubernetes Engine Logging mechanism on GKE Worker instances running COS. To capture and ship these logs, you must manually deploy a separate <code>daemonset</code> from <a href="https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-node-tools/master/os-audit/cos-auditd-logging.yaml">this YAML manifest</a>.  This daemonset pulls specific logs from the operating system above and beyond the normal Stackdriver Kubernetes Engine Logging daemonset.  Examples include:</p>
 <ul>
@@ -708,19 +666,79 @@ jsonPayload._SYSTEMD_UNIT=&quot;sshd.service&quot;
 <p>The CIS GCP Benchmarks include a requirement to have a "full" export of all Stackdriver logs to a more permanent destination.  Admin activity logs are stored for you for just over a year, but data access logs are only available for 30 days.  Exporting all logs to a GCS Bucket with a retention policy and lifecycle policy that moves them to "colder" storage over time is highly recommended and often required by compliance frameworks. See <a href="https://cloud.google.com/logging/docs/export/">Log Exports</a> for the mechanics for setting up exports to GCS, Pub/Sub, and/or BigQuery.  Keep in mind that exports only apply to new log lines that arrive after the export is in place.</p>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <ul>
+<li><a href="https://cloud.google.com/monitoring/kubernetes-engine/customizing#monitored_resource_types">GKE Logging Resource Types</a></li>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/audit-logging">GKE Audit Logging</a></li>
 <li><a href="https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging">COS Auditd Logging</a></li>
 <li><a href="https://cloud.google.com/logging/docs/export/">Log Exports</a></li>
 </ul>
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
-<h3 id="cluster-metrics">Cluster Metrics<a class="headerlink" href="#cluster-metrics" title="Permanent link">&para;</a></h3>
-<h3 id="node-metrics">Node Metrics<a class="headerlink" href="#node-metrics" title="Permanent link">&para;</a></h3>
-<h3 id="pod-metrics">Pod Metrics<a class="headerlink" href="#pod-metrics" title="Permanent link">&para;</a></h3>
-<h3 id="container-metrics">Container Metrics<a class="headerlink" href="#container-metrics" title="Permanent link">&para;</a></h3>
-<h3 id="kubernetes-state-metrics">Kubernetes State Metrics<a class="headerlink" href="#kubernetes-state-metrics" title="Permanent link">&para;</a></h3>
+<p>When <code>monitoring.googleapis.com/kubernetes</code> is enabled for a <code>cluster</code> in a <code>project</code>, the following now appears in Stackdriver:</p>
+<p><img alt="Stackdriver Monitoring Dashboard" src="../img/stackdriver-monitoring.png" /></p>
+<p>The combination of the following In-Cluster Monitoring Deployments ships all metrics-related items to Stackdriver:</p>
+<div class="codehilite"><pre><span></span><span class="go">kube-system   heapster-dff778fcf-5fc7m                                    3/3     Running   0          58m</span>
+<span class="go">kube-system   metrics-server-v0.3.1-8d4c5db46-wkgwn                       2/2     Running   0          57m</span>
+<span class="go">kube-system   prometheus-to-sd-db5wc                                      1/1     Running   0          57m</span>
+<span class="go">kube-system   prometheus-to-sd-pbzsx                                      1/1     Running   0          57m</span>
+<span class="go">kube-system   stackdriver-metadata-agent-cluster-level-5789cffbb4-lfg8l   1/1     Running   0          23m</span>
+</pre></div>
+
+<ul>
+<li>
+<p><strong>Heapster</strong> - A deployment that ships certain metrics directly to Stackdriver through a "prometheus-to-stackdriver" sidecar.  To see which metrics are exported, run:</p>
+<div class="codehilite"><pre><span></span>kubectl exec -it -n kube-system $(kubectl get pod -n kube-system -l k8s-app=heapster --no-headers -o custom-columns=&quot;:metadata.name&quot;) -c heapster-nanny -- wget -qO - localhost:8082/metrics
+</pre></div>
+
+</li>
+<li>
+<p><strong>Metrics Server</strong> - An API Server extension (<code>metrics.k8s.io/v1beta1</code>) that provides the current resources used by <code>nodes</code> or <code>pods</code> for commands such as <code>kubectl top nodes</code> and <code>kubectl top pods</code>.  Used as the main resource usage point for controllers like the <code>horizontal-</code> (HPA) and <code>vertical-pod-autoscaler</code> (VPA).</p>
+<p><div class="codehilite"><pre><span></span>$ kubectl top nodes
+NAME                                        CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+gke-monitoring-default-pool-142a11d6-142p   54m          5%     708Mi           26%       
+gke-monitoring-default-pool-142a11d6-zf1k   46m          4%     676Mi           25%     
+</pre></div>
+ <div class="codehilite"><pre><span></span>$ kubectl top pods -A
+NAMESPACE     NAME                                                        CPU(cores)   MEMORY(bytes)   
+kube-system   event-exporter-v0.2.5-7df89f4b8f-cd9z9                      1m           17Mi            
+kube-system   fluentd-gcp-scaler-54ccb89d5-s6wqf                          21m          34Mi            
+kube-system   fluentd-gcp-v3.1.1-4zqtb                                    9m           138Mi           
+kube-system   fluentd-gcp-v3.1.1-7rcnc                                    7m           137Mi           
+kube-system   heapster-dff778fcf-5fc7m                                    2m           35Mi            
+kube-system   kube-dns-5877696fb4-59s5k                                   2m           28Mi            
+kube-system   kube-dns-5877696fb4-69pp2                                   2m           28Mi            
+kube-system   kube-dns-autoscaler-57d56b4f56-7pv8j                        1m           6Mi             
+kube-system   kube-proxy-gke-monitoring-default-pool-142a11d6-142p        1m           11Mi            
+kube-system   kube-proxy-gke-monitoring-default-pool-142a11d6-zf1k        3m           12Mi            
+kube-system   l7-default-backend-8f479dd9-zpqh4                           1m           2Mi             
+kube-system   metrics-server-v0.3.1-8d4c5db46-wkgwn                       1m           17Mi            
+kube-system   prometheus-to-sd-db5wc                                      0m           9Mi             
+kube-system   prometheus-to-sd-pbzsx                                      1m           9Mi             
+kube-system   stackdriver-metadata-agent-cluster-level-5789cffbb4-lfg8l   3m           17Mi     
+</pre></div></p>
+</li>
+<li>
+<p><strong>Prometheus to Stackdriver</strong> - A "prometheus-to-stackdriver" <code>daemonset</code> that ships the local <code>kube-proxy</code> (localhost:10249) and <code>kubelet</code> (localhost:10255) prometheus-formatted metrics to stackdriver.  Runs on the <code>hostNetwork</code>.  To see what they each export, run:</p>
+<p><div class="codehilite"><pre><span></span>kubectl run --rm -it busybox --image=busybox --restart=Never --overrides=&#39;{&quot;kind&quot;:&quot;Pod&quot;, &quot;apiVersion&quot;:&quot;v1&quot;, &quot;spec&quot;: {&quot;hostNetwork&quot;:true}}&#39; -- wget -qO - localhost:10249/metrics
+</pre></div>
+ <div class="codehilite"><pre><span></span>kubectl run --rm -it busybox --image=busybox --restart=Never --overrides=&#39;{&quot;kind&quot;:&quot;Pod&quot;, &quot;apiVersion&quot;:&quot;v1&quot;, &quot;spec&quot;: {&quot;hostNetwork&quot;:true}}&#39; -- wget -qO - localhost:10255/metrics
+</pre></div></p>
+</li>
+<li>
+<p><strong>Stackdriver Metadata Agent</strong> - A simple API Server resource "watcher" that sends metadata about <code>nodes</code>, <code>pods</code>, <code>cronjobs</code>, <code>daemonsets</code>, <code>deployments</code>, <code>endpoints</code>, <code>ingresses</code>, <code>jobs</code>, <code>namespaces</code>, <code>replicasets</code>, <code>replicationcontrollers</code>, <code>services</code>, and <code>statefulsets</code> to Stackdriver so that the dashboard has the appropriate context.</p>
+</li>
+</ul>
+<h3 id="other-considerations">Other Considerations<a class="headerlink" href="#other-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>If you want to use a third party monitoring system such as prometheus or DataDog, you can still install and manage them yourself inside your cluster alongside these components.</li>
+<li>You most likely cannot customize the Stackdriver monitoring/logging <code>deployments</code> or <code>configmaps</code> directly as the add-on manager will reconcile them to their original state.  To be able to customize the components, you must opt-out of installing these components during cluster creation and manually install them from manifests.  This isn't a common or recommended practice as you will be responsible for maintaining compatibility across GKE version upgrades yourself, but it's available for advanced use cases.</li>
+<li>Note that metrics and logs go to the local Stackdriver <code>project</code>, so multi-tenant <code>cluster</code> use cases will co-mingle that data for all tenants by default.  Giving IAM permissions to view logs and metrics is <code>project</code>-scoped, so giving a tenant the ability to see the data gives them access to cluster-wide metrics and logs.</li>
+</ul>
 <h3 id="resources_1">Resources<a class="headerlink" href="#resources_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://cloud.google.com/monitoring/kubernetes-engine/observing">Observing GKE</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/debug-application-cluster/resource-metrics-pipeline/">Resource Metrics Pipeline</a></li>
+<li><a href="https://github.com/kubernetes-incubator/metrics-server">Metrics Server</a></li>
+<li><a href="https://github.com/kubernetes-retired/heapster">Heapster</a></li>
+<li><a href="https://cloud.google.com/monitoring/kubernetes-engine/customizing">Customizing GKE Monitoring</a></li>
 </ul>
                 
                   
