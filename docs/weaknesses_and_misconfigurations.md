@@ -10,7 +10,9 @@
 
 ## Default Service Account and Project Editor IAM Role
 
-## Exposed Metadata API
+## Unprotected Metadata API
+
+## Unprotected Node Bootstrapping Credentials
 
 ## Lack of Pod Spec Enforcement
 
