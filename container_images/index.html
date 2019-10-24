@@ -476,10 +476,12 @@
                 
                 <h1 id="container-images">Container Images<a class="headerlink" href="#container-images" title="Permanent link">&para;</a></h1>
 <h2 id="dockerfile-best-practices">Dockerfile Best Practices<a class="headerlink" href="#dockerfile-best-practices" title="Permanent link">&para;</a></h2>
-<p>Whenever possible, employ least privilege in your Dockerfile (and your container images).  There are three main surface vectors that allow an attacker to do more than they should with a pod:
-1. Root Access
-2. Shell Access
-3. Package Managers</p>
+<p>Whenever possible, employ least privilege in your Dockerfile (and your container images).  There are three main surface vectors that allow an attacker to do more than they should with a pod:</p>
+<ol>
+<li>Root Access</li>
+<li>Shell Access</li>
+<li>Package Managers</li>
+</ol>
 <p>To minimize this risk, it's worth taking out as many of these as possible, check out <a href="https://github.com/GoogleContainerTools/distroless">Gooogle Container Tools distroless</a> for references and examples.</p>
 <h2 id="base-images">Base Images<a class="headerlink" href="#base-images" title="Permanent link">&para;</a></h2>
 <h2 id="package-vulnerabilities">Package Vulnerabilities<a class="headerlink" href="#package-vulnerabilities" title="Permanent link">&para;</a></h2>
