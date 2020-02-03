@@ -13,9 +13,12 @@ Whenever possible, employ least privilege in your Dockerfile (and your container
 2. Shell Access
 3. Package Managers
 
-To minimize this risk, it's worth taking out as many of these as possible, check out [Gooogle Container Tools distroless](https://github.com/GoogleContainerTools/distroless) for references and examples.
+### Distroless Images
+To minimize this risk, it's worth taking out as many of these as possible, check out [Google Container Tools distroless](https://github.com/GoogleContainerTools/distroless) for references and examples.
 
 ## Base Images
+
+As an organization best practice, a set of 3-6 baseimages are recommended for anyone intending to create a new service or application.  Google maintains a good list for common operating systems [GCR Managed Base Images] (https://cloud.google.com/container-registry/docs/managed-base-images), if your image needs a full-bown OS.  Otherwise, it's recommended to decrease the attack surface by focussing down on a language or framework base image (see Distroless Images above) and create a minimal base image that gets patched often for CVE's, and has least privilege by default.  
 
 ## Package Vulnerabilities
 
