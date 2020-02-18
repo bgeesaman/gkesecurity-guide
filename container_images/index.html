@@ -333,9 +333,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#binary-authorization" title="Binary Authorization" class="md-nav__link">
+    Binary Authorization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dockerfile-best-practices" title="Dockerfile Best Practices" class="md-nav__link">
     Dockerfile Best Practices
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distroless-images" title="Distroless Images" class="md-nav__link">
+    Distroless Images
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -428,9 +448,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#binary-authorization" title="Binary Authorization" class="md-nav__link">
+    Binary Authorization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dockerfile-best-practices" title="Dockerfile Best Practices" class="md-nav__link">
     Dockerfile Best Practices
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distroless-images" title="Distroless Images" class="md-nav__link">
+    Distroless Images
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -475,6 +515,9 @@
                 
                 
                 <h1 id="container-images">Container Images<a class="headerlink" href="#container-images" title="Permanent link">&para;</a></h1>
+<h2 id="binary-authorization">Binary Authorization<a class="headerlink" href="#binary-authorization" title="Permanent link">&para;</a></h2>
+<p>By default, Kubernetes will pull any container images specified in the <code>PodSpec</code>'s <code>image:</code> as long as Kubernetes has access, and often the only identifier is the registry URL as well as the common name of the image.  If a cluster is compromised and the attacker has access to api-resources like the <code>Pod</code> or <code>Deployment</code> resouces, they could potentially pull unknown or malicious images into the environment and further elevate their privileges.  Additionally, an attacker could gain access to your container registry and upload a similarly named container (e.g. <code>my-usual-api-image-name</code>) and your Deployment could pull this container image on creation without it having authorization to run in your environment. Both of these threat vectors introduce the need for having your container images signed and verified (with a hash) and then applying an accompanying policy that enforces this at the cluster-level (any time a new image is requested). Binary Authorization uses a system of attestations (validity of the hash digest of the image) and enforcements (verifying attestations match up with a policy provided) to help accomplish this.   </p>
+<p>From a practical perspective, the first stage of implementing this soluion is to create a policy that stops the cluster from pulling any random image from a public registry like DockerHub and only allows from trusted sources (like a private registry).  After this first stage is done, the policy can be extended to include signing and verification of the hash digest as the image goes through the build process. See <a href="https://cloud.google.com/binary-authorization/">GKE Binary Authorization</a> for more information.</p>
 <h2 id="dockerfile-best-practices">Dockerfile Best Practices<a class="headerlink" href="#dockerfile-best-practices" title="Permanent link">&para;</a></h2>
 <p>Whenever possible, employ least privilege in your Dockerfile (and your container images).  There are three main surface vectors that allow an attacker to do more than they should with a pod:</p>
 <ol>
@@ -482,8 +525,10 @@
 <li>Shell Access</li>
 <li>Package Managers</li>
 </ol>
-<p>To minimize this risk, it's worth taking out as many of these as possible, check out <a href="https://github.com/GoogleContainerTools/distroless">Gooogle Container Tools distroless</a> for references and examples.</p>
+<h3 id="distroless-images">Distroless Images<a class="headerlink" href="#distroless-images" title="Permanent link">&para;</a></h3>
+<p>To minimize this risk, it's worth taking out as many of these as possible, check out <a href="https://github.com/GoogleContainerTools/distroless">Google Container Tools distroless</a> for references and examples.</p>
 <h2 id="base-images">Base Images<a class="headerlink" href="#base-images" title="Permanent link">&para;</a></h2>
+<p>As an organization best practice, a set of 3-6 baseimages are recommended for anyone intending to create a new service or application.  Google maintains a good list for common operating systems [GCR Managed Base Images] (<a href="https://cloud.google.com/container-registry/docs/managed-base-images">https://cloud.google.com/container-registry/docs/managed-base-images</a>), if your image needs a full-bown OS.  Otherwise, it's recommended to decrease the attack surface by focussing down on a language or framework base image (see Distroless Images above) and create a minimal base image that gets patched often for CVE's, and has least privilege by default.  </p>
 <h2 id="package-vulnerabilities">Package Vulnerabilities<a class="headerlink" href="#package-vulnerabilities" title="Permanent link">&para;</a></h2>
 <h2 id="application-vulnerabilities">Application Vulnerabilities<a class="headerlink" href="#application-vulnerabilities" title="Permanent link">&para;</a></h2>
                 
