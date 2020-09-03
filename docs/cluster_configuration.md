@@ -79,13 +79,12 @@ There are a couple key points to understand about how Cloud IAM and Kubernetes R
 
     In order for `users` and `service accounts` to perform a `gcloud container clusters get-credentials` call to generate a valid `kubeconfig` for a GKE `cluster`, they need to have the following permissions:
 
-    * `container.apiServices.get`
-    * `container.apiServices.list`
     * `container.clusters.get`
     * `container.clusters.list`
-    * `container.clusters.getCredentials`
+    * `resourcemanager.projects.get`
+    * `resourcemanager.projects.list`
 
-    If these permissions are grouped into a custom IAM `role`, that IAM `role` can be conveniently bound to a Gsuite/Cloud Identity `group` which includes all users that need access to the `cluster`.
+    These permissions are available in the predefined role `roles/container.clusterViewer`, which can be bound to a Gsuite/Cloud Identity `group` which includes all users that need access to the `cluster`.
 
     From this point, the `users` and `service accounts` can be granted access to resources as needed with `cluster`-wide or per-`namespace` granularity.  This has the benefit of minimizing IAM changes needed, ensuring access granted is per-`cluster`, giving the highest granularity, and making troubleshooting permissions an RBAC-only process.
 
